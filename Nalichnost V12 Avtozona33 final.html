@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Мото Аве v11.2 - Динамични Филтри</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root { --p: #667eea; --s: #764ba2; --ok: #48bb78; --warn: #ed8936; --err: #e53e3e; --bg: #f4f7f9; --card: #ffffff; --text: #333333; --border: #dddddd; }
+        [data-theme="dark"] { --bg: #1a202c; --card: #2d3748; --text: #f7fafc; --border: #4a5568; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 80px; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, var(--p), var(--s)); color: white; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .stat-card { background: rgba(255,255,255,0.15); padding: 8px; border-radius: 10px; text-align: center; }
+        .controls { background: var(--card); padding: 12px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
+        #searchInput { width: 100%; padding: 14px; border-radius: 10px; border: 2px solid var(--p); background: var(--bg); color: var(--text); font-size: 16px; outline: none; }
+        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        select { padding: 12px; border-radius: 8px; background: var(--bg); color: var(--text); border: 1px solid var(--border); font-size: 0.85rem; width: 100%; }
+        .filters-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0; }
+        .chip { background: var(--bg); padding: 8px 15px; border-radius: 20px; font-size: 0.75rem; white-space: nowrap; border: 1px solid var(--border); cursor: pointer; }
+        .chip.active { background: var(--p); color: white; }
+        .product-card { background: var(--card); margin: 10px; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid transparent; }
+        .critical { border-left-color: var(--err); background: #fff5f5; }
+        [data-theme="dark"] .critical { background: #3a2a2a; }
+        .p-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; }
+        .p-code { font-weight: bold; background: #edf2f7; padding: 3px 8px; border-radius: 5px; }
+        .stock-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); text-align: center; }
+        .s-v { font-size: 1.1rem; font-weight: bold; }
+        .s-v.needed { color: var(--err); }
+        #uploadZone { text-align:center; padding:40px; border:2px dashed var(--border); margin:20px; border-radius:20px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Мото Аве v11.2</h2>
+        <div>
+            <button onclick="toggleTheme()" style="background:none; border:none; font-size:20px;">🌓</button>
+            <button onclick="togglePrices()" style="background:none; border:none; font-size:20px;">🔒</button>
+        </div>
+    </div>
+    <div class="stats">
+        <div class="stat-card"><div id="statCount" style="font-weight:bold">0</div><div style="font-size:0.6rem">АРТИКУЛА</div></div>
+        <div class="stat-card"><div id="statSell" style="font-weight:bold">0 EUR.</div><div style="font-size:0.6rem">НАЛИЧНОСТ</div></div>
+    </div>
+</div>
+
+<div class="controls">
+    <input type="search" id="searchInput" placeholder="Търси модел или код..." oninput="handleSearch()">
+    
+    <div class="filter-grid">
+        <select id="subGroupFilter" onchange="updateDynamicFilters(); handleSearch();">
+            <option value="">Подгрупа (Всички)</option>
+        </select>
+        <select id="brandFilter" onchange="handleSearch()">
+            <option value="">Производител (Всички)</option>
+        </select>
+    </div>
+
+    <div class="filter-grid">
+        <select id="locationFilter" onchange="handleSearch()">
+            <option value="">Всички обекти</option>
+            <option value="w">Склад</option>
+            <option value="m1">305</option>
+            <option value="m2">309</option>
+        </select>
+        <button class="chip" style="width:100%" onclick="clearData()">🗑️ Нов файл</button>
+    </div>
+    
+    <div class="filters-scroll">
+        <div class="chip" id="chipInStock" onclick="toggleChip('inStock')">✅ Налични</div>
+        <div class="chip" id="chipRestock" onclick="toggleChip('restock')">⚠️ За Трансфер</div>
+    </div>
+</div>
+
+<div id="uploadZone" style="display:none;" onclick="document.getElementById('fileIn').click()">
+    <p>📁 Докосни за качване на Microinvest файл</p>
+    <input type="file" id="fileIn" hidden onchange="handleFile(event)">
+</div>
+
+<div id="list"></div>
+
+<script>
+    let inventory = [];
+    let pricesVisible = false;
+    let activeFilters = { inStock: false, restock: false };
+
+    window.onload = () => {
+        if(localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
+        const saved = localStorage.getItem('ave_pro_inv_v11_2');
+        if (saved) { 
+            inventory = JSON.parse(saved); 
+            initFilters(); 
+            handleSearch(); 
+        } else { document.getElementById('uploadZone').style.display = 'block'; }
+    };
+
+    function handleFile(e) {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            const workbook = XLSX.read(new Uint8Array(evt.target.result), {type: 'array'});
+            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
+            processData(rows);
+        };
+        reader.readAsArrayBuffer(e.target.files[0]);
+    }
+
+    function processData(rows) {
+        let hIdx = rows.findIndex(r => r && r.some(c => String(c).toLowerCase().includes('стока')));
+        const h = rows[hIdx].map(c => String(c || '').toLowerCase().trim());
+        const find = (keys) => h.findIndex(x => keys.some(k => x.includes(k)));
+
+        inventory = rows.slice(hIdx + 1).filter(r => r[find(['стока'])]).map(r => {
+            const groupPath = String(r[find(['група'])] || 'Други').split('/');
+            return {
+                code: String(r[find(['код'])] || ''),
+                name: String(r[find(['стока'])] || ''),
+                subGroup: groupPath[1] || 'Общи',
+                brand: groupPath[2] || 'Други',
+                w: parseFloat(r[find(['склад'])] || 0),
+                m1: parseFloat(r[find(['305', 'магазин 305'])] || 0),
+                m2: parseFloat(r[find(['309', 'магазин 309'])] || 0),
+                pc: parseFloat(String(r[find(['доставна'])] || 0).replace(',','.')) || 0,
+                ps: parseFloat(String(r[find(['продажна'])] || 0).replace(',','.')) || 0
+            };
+        });
+        localStorage.setItem('ave_pro_inv_v11_2', JSON.stringify(inventory));
+        location.reload();
+    }
+
+    function initFilters() {
+        // Попълваме първоначално подгрупите
+        const subGroups = [...new Set(inventory.map(i => i.subGroup))].sort();
+        const sgSelect = document.getElementById('subGroupFilter');
+        sgSelect.innerHTML = '<option value="">Подгрупа (Всички)</option>' + 
+            subGroups.map(g => `<option value="${g}">${g}</option>`).join('');
+        
+        updateDynamicFilters();
+    }
+
+    function updateDynamicFilters() {
+        const selectedSG = document.getElementById('subGroupFilter').value;
+        const brandSelect = document.getElementById('brandFilter');
+        const currentBrand = brandSelect.value;
+
+        // Филтрираме марките според избраната подгрупа
+        const relevantBrands = [...new Set(
+            inventory
+            .filter(i => !selectedSG || i.subGroup === selectedSG)
+            .map(i => i.brand)
+        )].sort();
+
+        brandSelect.innerHTML = '<option value="">Производител (Всички)</option>' + 
+            relevantBrands.map(b => `<option value="${b}">${b}</option>`).join('');
+        
+        // Опитваме се да запазим избраната марка, ако все още е налична в новия списък
+        if (relevantBrands.includes(currentBrand)) brandSelect.value = currentBrand;
+    }
+
+    function handleSearch() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const sg = document.getElementById('subGroupFilter').value;
+        const br = document.getElementById('brandFilter').value;
+        const loc = document.getElementById('locationFilter').value;
+
+        const filtered = inventory.filter(i => {
+            if (sg && i.subGroup !== sg) return false;
+            if (br && i.brand !== br) return false;
+            if (loc && i[loc] <= 0) return false;
+            if (activeFilters.inStock && (i.w + i.m1 + i.m2) <= 0) return false;
+            if (activeFilters.restock && !(i.w > 0 && (i.m1 <= 0 || i.m2 <= 0))) return false;
+            return (i.name + i.code).toLowerCase().includes(q);
+        });
+
+        renderList(filtered);
+    }
+
+    function renderList(data) {
+        const list = document.getElementById('list');
+        let totalVal = 0;
+        list.innerHTML = data.map(i => {
+            totalVal += (i.ps * (i.w + i.m1 + i.m2));
+            const isCritical = i.w > 0 && (i.m1 <= 0 || i.m2 <= 0);
+            return `
+                <div class="product-card ${isCritical ? 'critical' : ''}">
+                    <div class="p-header">
+                        <div class="p-code">${i.code}</div>
+                        <div class="p-price">${pricesVisible ? '<span style="color:gray">'+i.pc.toFixed(2)+' | </span>' : ''}${i.ps.toFixed(2)} EUR.</div>
+                    </div>
+                    <div style="font-weight:bold; font-size:0.95rem;">${i.name}</div>
+                    <div style="font-size:0.7rem; color:gray; margin-top:4px;">${i.subGroup} > ${i.brand}</div>
+                    <div class="stock-grid">
+                        <div class="stock-item"><div class="s-v">${i.w}</div><div class="s-l">СКЛАД</div></div>
+                        <div class="stock-item"><div class="s-v ${i.w > 0 && i.m1 <= 0 ? 'needed' : ''}">${i.m1}</div><div class="s-l">305</div></div>
+                        <div class="stock-item"><div class="s-v ${i.w > 0 && i.m2 <= 0 ? 'needed' : ''}">${i.m2}</div><div class="s-l">309</div></div>
+                    </div>
+                </div>`;
+        }).join('');
+        document.getElementById('statCount').textContent = data.length;
+        document.getElementById('statSell').textContent = totalVal.toLocaleString() + ' EUR.';
+    }
+
+    function clearData() { if(confirm("Изтриване на текущата база и качване на нов файл?")) { localStorage.removeItem('ave_pro_inv_v11_2'); location.reload(); } }
+    function toggleTheme() { document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); localStorage.setItem('theme', document.body.getAttribute('data-theme')); }
+    function toggleChip(t) { activeFilters[t] = !activeFilters[t]; document.getElementById('chip'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active'); handleSearch(); }
+    function togglePrices() { if(!pricesVisible && prompt("Парола:") === "000") pricesVisible = true; else pricesVisible = false; handleSearch(); }
+</script>
+</body>
+</html>
