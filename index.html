@@ -2,40 +2,109 @@
 <html lang="bg">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Autozone 33 - Logistics HUB</title>
     <style>
-        :root { --sidebar: #1a237e; --accent: #00e5ff; }
-        body { margin: 0; display: flex; height: 100vh; font-family: sans-serif; background: #f0f2f5; overflow: hidden; }
+        :root { --sidebar: #1a237e; --accent: #00e5ff; --header-h: 60px; }
         
-        /* SIDEBAR СТИЛ */
-        .sidebar { width: 280px; background: var(--sidebar); color: white; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.2); z-index: 10; }
-        .sidebar-header { padding: 30px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .sidebar-header h2 { font-size: 1.5rem; letter-spacing: 1px; color: #fff; margin: 0; }
-        .sidebar-header span { font-size: 0.75rem; color: var(--accent); font-weight: bold; text-transform: uppercase; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        
+        body { background: #f0f2f5; display: flex; height: 100vh; overflow: hidden; }
 
-        .nav-menu { flex-grow: 1; padding: 20px 0; overflow-y: auto; }
+        /* ХАМБУРГЕР БУТОН ЗА МОБИЛНИ */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1001;
+            background: var(--sidebar);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* СТРАНИЧНО МЕНЮ */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header { padding: 25px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header h2 { font-size: 1.4rem; color: #fff; margin: 0; }
+        
+        .nav-menu { flex-grow: 1; padding: 10px 0; overflow-y: auto; }
         .nav-item { 
-            padding: 15px 25px; cursor: pointer; border-left: 4px solid transparent; 
-            color: #cfd8dc; transition: 0.3s; font-size: 0.95rem;
+            padding: 15px 20px; cursor: pointer; border-left: 4px solid transparent; 
+            color: #cfd8dc; transition: 0.2s; font-size: 0.9rem;
         }
         .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: white; border-left-color: var(--accent); }
 
         /* ГЛАВЕН ПРОЗОРЕЦ */
-        .main { flex-grow: 1; display: flex; flex-direction: column; }
-        .top-bar { height: 65px; background: white; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; font-weight: bold; color: #1a237e; }
-        iframe { width: 100%; height: 100%; border: none; background: white; }
+        .main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; }
+        
+        .top-bar { 
+            height: var(--header-h); 
+            background: white; 
+            border-bottom: 1px solid #ddd; 
+            display: flex; 
+            align-items: center; 
+            padding: 0 15px 0 60px; /* Място за бутона на мобилни */
+            font-weight: bold; 
+            color: #1a237e;
+            justify-content: space-between;
+        }
 
-        .clock { font-size: 0.9rem; color: #666; }
+        .viewport { flex-grow: 1; background: white; -webkit-overflow-scrolling: touch; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* МОБИЛНИ НАСТРОЙКИ (Media Queries) */
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; } /* Показваме бутона */
+            
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                transform: translateX(-100%); /* Скриваме менюто вляво */
+            }
+
+            .sidebar.open { transform: translateX(0); } /* Показваме при клик */
+            
+            .top-bar { padding-left: 60px; font-size: 0.9rem; }
+            
+            /* Overlay ефект при отворено меню */
+            .overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+            .overlay.open { display: block; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    <div class="overlay" onclick="toggleMenu()"></div>
+
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h2>AUTOZONE 33</h2>
-            <span>Logistics Hub Pro</span>
+            <div style="font-size: 10px; color: var(--accent); font-weight: bold;">HUB PRO</div>
         </div>
-        <div class="nav-menu">
+        <nav class="nav-menu">
             <div class="nav-item active" onclick="load('OrderV16 final.html', this)">🛒 Нова Поръчка</div>
             <div class="nav-item" onclick="load('PacinglistV7 final.html', this)">📦 Пакетиране & Етикети</div>
             <div class="nav-item" onclick="load('Nalichnost V12 Avtozona33 final.html', this)">📊 Наличности</div>
@@ -44,35 +113,45 @@
             <div class="nav-item" onclick="load('kasov-otchet-online V3 final.html', this)">💰 Касов Отчет</div>
             <div class="nav-item" onclick="load('autofleet PRO.html', this)">🚐 Автопарк</div>
             <div class="nav-item" onclick="load('Moto Mahager V1.html', this)">🏍️ Moto Manager</div>
-        </div>
-        <div style="padding: 15px; font-size: 10px; opacity: 0.4; text-align: center;">v2.0 Managed by Gemini</div>
-    </div>
+        </nav>
+    </aside>
 
-    <div class="main">
+    <main class="main">
         <div class="top-bar">
             <span id="title">Модул: Нова Поръчка</span>
-            <span id="live-clock" class="clock"></span>
         </div>
-        <iframe id="frame" src="OrderV16 final.html"></iframe>
-    </div>
+        <div class="viewport">
+            <iframe id="frame" src="OrderV16 final.html"></iframe>
+        </div>
+    </main>
 
     <script>
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.querySelector('.overlay').classList.toggle('open');
+        }
+
         function load(file, el) {
             document.getElementById('frame').src = file;
             document.getElementById('title').innerText = "Модул: " + el.innerText;
             
-            // Смяна на активния бутон в менюто
+            // Активен клас
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
+
+            // Затваряме менюто автоматично на мобилни след избор
+            if (window.innerWidth <= 768) {
+                toggleMenu();
+            }
         }
 
-        // Часовник в реално време
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('live-clock').innerText = now.toLocaleTimeString('bg-BG');
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
+        // Поддръжка на размерите при преоразмеряване
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                document.getElementById('sidebar').classList.remove('open');
+                document.querySelector('.overlay').classList.remove('open');
+            }
+        });
     </script>
 </body>
 </html>
