@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoBatt Manager - База данни мото акумулатори</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); min-height: 100vh; }
+        .hover-lift { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
+        .sidebar-link { transition: all 0.2s; border-left: 3px solid transparent; }
+        .sidebar-link:hover, .sidebar-link.active { background: rgba(245, 158, 11, 0.1); border-left-color: #f59e0b; color: #f59e0b; }
+        .battery-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid #334155; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tech-badge { font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 600; }
+        .tech-mf { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .tech-agm { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .tech-gel { background: rgba(168, 85, 247, 0.2); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .tech-li { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .tech-sli { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .terminal-positive { color: #22c55e; }
+        .terminal-negative { color: #ef4444; }
+        .price-tag { color: #10b981; font-weight: 700; }
+        .stock-low { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .stock-medium { background: rgba(234, 179, 8, 0.2); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.3); }
+        .stock-high { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+        
+        /* Toggle Button Styles */
+        .toggle-btn {
+            transition: all 0.3s ease;
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid #475569;
+            color: #94a3b8;
+        }
+        .toggle-btn:hover {
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+        .toggle-btn.active {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border-color: #22c55e;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+        }
+        .toggle-btn i {
+            transition: all 0.3s ease;
+        }
+        .toggle-btn.active i {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body class="gradient-bg">
+    <!-- Main Application -->
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col">
+            <div class="p-6 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <i class="fas fa-motorcycle text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-lg text-white">MotoBatt</h2>
+                        <p class="text-xs text-slate-500">Manager Pro</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <button onclick="app.navigate('dashboard')" class="sidebar-link w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-slate-300">
+                    <i class="fas fa-chart-line w-5"></i> Табло
+                </button>
+                <button onclick="app.navigate('add')" class="sidebar-link w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-slate-300">
+                    <i class="fas fa-plus-circle w-5"></i> Нов акумулатор
+                </button>
+                <button onclick="app.navigate('database')" class="sidebar-link w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-slate-300">
+                    <i class="fas fa-database w-5"></i> База данни
+                </button>
+                <button onclick="app.navigate('search')" class="sidebar-link w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-slate-300">
+                    <i class="fas fa-search w-5"></i> Търсене
+                </button>
+                <button onclick="app.navigate('import')" class="sidebar-link w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-slate-300">
+                    <i class="fas fa-file-import w-5"></i> Импорт/Експорт
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800">
+                <div class="glass p-3 rounded-lg">
+                    <p class="text-xs text-slate-400">Записи в базата:</p>
+                    <p class="text-2xl font-bold text-amber-500" id="totalCount">0</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto bg-slate-900/50 p-8">
+            <div id="contentArea"></div>
+        </main>
+    </div>
+
+    <!-- Modal for Details -->
+    <div id="modalContainer" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" id="modalContent"></div>
+    </div>
+
+    <script>
+        const app = {
+            batteries: [],
+            showOnlyInStock: false,
+            
+            init() {
+                const saved = localStorage.getItem('motobatt_data_v2');
+                if (saved) {
+                    this.batteries = JSON.parse(saved);
+                } else {
+                    this.batteries = [
+                        {
+                            id: 1,
+                            brand: 'YUASA',
+                            model: 'YTX12-BS',
+                            oemCode: 'YUAM32RBS',
+                            ean: '5050699001234',
+                            voltage: 12,
+                            capacityAh: 10,
+                            capacityCca: 180,
+                            technology: 'MF',
+                            layout: '0',
+                            polarity: 'L',
+                            terminalType: 'STD',
+                            length: 150, width: 87, height: 105,
+                            length1: 130, width1: 0, height1: 0,
+                            weight: 3.5,
+                            gasExits: 'NO',
+                            terminalFlags: 'NO',
+                            handle: 'YES',
+                            withoutAcid: 'NO',
+                            screwLength: 20,
+                            screwDiameter: 6,
+                            screwPart: 'M6',
+                            baseHoldDown: 'B0',
+                            oemReferences: ['HONDA 31500-HA7-672', 'YAMAHA 5JX-H2105-00'],
+                            applications: 'Honda CB500, Yamaha FZ6, Kawasaki ER-5',
+                            notes: 'Висококачествен акумулатор за средни мотоциклети',
+                            stock: 15,
+                            price: 74.00,
+                            dateAdded: new Date().toISOString()
+                        },
+                        {
+                            id: 2,
+                            brand: 'BOSCH',
+                            model: 'M4F40',
+                            oemCode: '0 092 M4F 400',
+                            ean: '4047025361234',
+                            voltage: 12,
+                            capacityAh: 4,
+                            capacityCca: 70,
+                            technology: 'SLI',
+                            layout: '0',
+                            polarity: 'R',
+                            terminalType: 'STD',
+                            length: 120, width: 70, height: 92,
+                            length1: 0, width1: 0, height1: 0,
+                            weight: 1.8,
+                            gasExits: 'NO',
+                            terminalFlags: 'NO',
+                            handle: 'NO',
+                            withoutAcid: 'NO',
+                            screwLength: 16,
+                            screwDiameter: 5,
+                            screwPart: 'M5',
+                            baseHoldDown: 'B0',
+                            oemReferences: ['BOSCH 0092M4F400'],
+                            applications: 'Скутери 50-125cc, малки мотоциклети',
+                            notes: 'Икономичен вариант за скутери',
+                            stock: 42,
+                            price: 33.00,
+                            dateAdded: new Date().toISOString()
+                        },
+                        {
+                            id: 3,
+                            brand: 'VARTA',
+                            model: 'YTX9-BS',
+                            oemCode: '508012008A514',
+                            ean: '4016987115168',
+                            voltage: 12,
+                            capacityAh: 8,
+                            capacityCca: 135,
+                            technology: 'AGM',
+                            layout: '0',
+                            polarity: 'L',
+                            terminalType: 'STD',
+                            length: 150, width: 87, height: 105,
+                            length1: 0, width1: 0, height1: 0,
+                            weight: 2.6,
+                            gasExits: 'NO',
+                            terminalFlags: 'NO',
+                            handle: 'YES',
+                            withoutAcid: 'NO',
+                            screwLength: 20,
+                            screwDiameter: 6,
+                            screwPart: 'M6',
+                            baseHoldDown: 'B0',
+                            oemReferences: [],
+                            applications: 'Honda CBR600, Yamaha R6, Kawasaki ZX-6R',
+                            notes: 'AGM технология за спортни мотоциклети',
+                            stock: 0,
+                            price: 61.00,
+                            dateAdded: new Date().toISOString()
+                        }
+                    ];
+                    this.save();
+                }
+                this.updateCount();
+                this.navigate('dashboard');
+            },
+
+            save() {
+                localStorage.setItem('motobatt_data_v2', JSON.stringify(this.batteries));
+                this.updateCount();
+            },
+
+            updateCount() {
+                document.getElementById('totalCount').textContent = this.batteries.length;
+            },
+
+            navigate(view) {
+                document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+                if (event && event.target) event.target.classList.add('active');
+                
+                const content = document.getElementById('contentArea');
+                content.innerHTML = '';
+
+                switch(view) {
+                    case 'dashboard': this.renderDashboard(content); break;
+                    case 'add': this.renderAddForm(content); break;
+                    case 'database': this.renderDatabase(content); break;
+                    case 'search': this.renderSearch(content); break;
+                    case 'import': this.renderImport(content); break;
+                }
+            },
+
+            renderDashboard(container) {
+                const techStats = {};
+                const totalValue = this.batteries.reduce((sum, b) => sum + (b.stock * b.price), 0);
+                this.batteries.forEach(b => {
+                    techStats[b.technology] = (techStats[b.technology] || 0) + 1;
+                });
+
+                container.innerHTML = `
+                    <div class="animate-fade-in">
+                        <h1 class="text-3xl font-bold text-white mb-8">Табло за управление</h1>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                            <div class="glass p-6 rounded-xl hover-lift">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 bg-amber-500/20 rounded-lg"><i class="fas fa-battery-full text-amber-500 text-xl"></i></div>
+                                    <span class="text-3xl font-bold text-white">${this.batteries.length}</span>
+                                </div>
+                                <p class="text-slate-400">Общо модела</p>
+                            </div>
+                            <div class="glass p-6 rounded-xl hover-lift">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 bg-green-500/20 rounded-lg"><i class="fas fa-boxes text-green-500 text-xl"></i></div>
+                                    <span class="text-3xl font-bold text-white">${this.batteries.reduce((a,b) => a + (parseInt(b.stock) || 0), 0)}</span>
+                                </div>
+                                <p class="text-slate-400">Обща наличност</p>
+                            </div>
+                            <div class="glass p-6 rounded-xl hover-lift">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 bg-blue-500/20 rounded-lg"><i class="fas fa-euro-sign text-blue-500 text-xl"></i></div>
+                                    <span class="text-2xl font-bold text-white">${totalValue.toFixed(0)}</span>
+                                </div>
+                                <p class="text-slate-400">Стойност на стоката (EUR)</p>
+                            </div>
+                            <div class="glass p-6 rounded-xl hover-lift">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 bg-purple-500/20 rounded-lg"><i class="fas fa-industry text-purple-500 text-xl"></i></div>
+                                    <span class="text-3xl font-bold text-white">${new Set(this.batteries.map(b => b.brand)).size}</span>
+                                </div>
+                                <p class="text-slate-400">Производители</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="glass rounded-xl p-6">
+                                <h2 class="text-xl font-bold text-white mb-4">Разпределение по технология</h2>
+                                <div class="space-y-3">
+                                    ${Object.entries(techStats).map(([tech, count]) => `
+                                        <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
+                                            <span class="tech-badge tech-${tech.toLowerCase()}">${tech}</span>
+                                            <span class="text-white font-bold">${count} бр.</span>
+                                        </div>
+                                    `).join('') || '<p class="text-slate-400">Няма данни</p>'}
+                                </div>
+                            </div>
+                            
+                            <div class="glass rounded-xl p-6">
+                                <h2 class="text-xl font-bold text-white mb-4">Критична наличност</h2>
+                                <div class="space-y-3">
+                                    ${this.batteries.filter(b => b.stock < 5).map(b => `
+                                        <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
+                                            <div>
+                                                <p class="text-white font-medium">${b.brand} ${b.model}</p>
+                                                <p class="text-xs text-slate-400">${b.capacityAh}Ah | ${b.technology}</p>
+                                            </div>
+                                            <span class="px-2 py-1 rounded text-xs font-bold ${b.stock === 0 ? 'bg-red-500/20 text-red-500' : 'bg-yellow-500/20 text-yellow-500'}">
+                                                ${b.stock} бр.
+                                            </span>
+                                        </div>
+                                    `).join('') || '<p class="text-slate-400">Няма критични наличности</p>'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderAddForm(container, editData = null) {
+                const isEdit = !!editData;
+                container.innerHTML = `
+                    <div class="animate-fade-in max-w-6xl mx-auto">
+                        <h1 class="text-3xl font-bold text-white mb-6">${isEdit ? 'Редакция на акумулатор' : 'Нов мотоциклетен акумулатор'}</h1>
+                        
+                        <form onsubmit="event.preventDefault(); app.saveBattery(${editData?.id || 'null'});" class="space-y-6">
+                            <!-- Основна информация -->
+                            <div class="glass rounded-xl p-6">
+                                <h2 class="text-lg font-semibold text-amber-500 mb-4 flex items-center gap-2">
+                                    <i class="fas fa-info-circle"></i> Основна информация
+                                </h2>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Марка *</label>
+                                        <input type="text" id="brand" value="${editData?.brand || ''}" required class="w-full px-4 py-2 rounded-lg" placeholder="YUASA, BOSCH, VARTA...">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Модел *</label>
+                                        <input type="text" id="model" value="${editData?.model || ''}" required class="w-full px-4 py-2 rounded-lg" placeholder="YTX12-BS">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">OEM Код</label>
+                                        <input type="text" id="oemCode" value="${editData?.oemCode || ''}" class="w-full px-4 py-2 rounded-lg" placeholder="YUAM32RBS">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">EAN Баркод</label>
+                                        <input type="text" id="ean" value="${editData?.ean || ''}" class="w-full px-4 py-2 rounded-lg" placeholder="5050699001234">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Технология *</label>
+                                        <select id="technology" required class="w-full px-4 py-2 rounded-lg">
+                                            <option value="">Изберете...</option>
+                                            <option value="SLI" ${editData?.technology === 'SLI' ? 'selected' : ''}>SLI (Запалване, светлини, запалка)</option>
+                                            <option value="MF" ${editData?.technology === 'MF' ? 'selected' : ''}>MF (Maintenance Free)</option>
+                                            <option value="AGM" ${editData?.technology === 'AGM' ? 'selected' : ''}>AGM (Absorbent Glass Mat)</option>
+                                            <option value="GEL" ${editData?.technology === 'GEL' ? 'selected' : ''}>GEL (Gel Battery)</option>
+                                            <option value="Li" ${editData?.technology === 'Li' ? 'selected' : ''}>Li (Литиева)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Напрежение (V) *</label>
+                                        <input type="number" id="voltage" value="${editData?.voltage || '12'}" required class="w-full px-4 py-2 rounded-lg">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Капацитет и цена -->
+                            <div class="glass rounded-xl p-6">
+                                <h2 class="text-lg font-semibold text-amber-500 mb-4 flex items-center gap-2">
+                                    <i class="fas fa-bolt"></i> Електрически параметри и цена
+                                </h2>
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Капацитет (Ah) *</label>
+                                        <input type="number" step="0.1" id="capacityAh" value="${editData?.capacityAh || ''}" required class="w-full px-4 py-2 rounded-lg" placeholder="10">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">CCA (A) - Стартов ток</label>
+                                        <input type="number" id="capacityCca" value="${editData?.capacityCca || ''}" class="w-full px-4 py-2 rounded-lg" placeholder="180">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Наличност (бр.) *</label>
+                                        <input type="number" id="stock" value="${editData?.stock || '0'}" required min="0" class="w-full px-4 py-2 rounded-lg" placeholder="0">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Цена (EUR) *</label>
+                                        <input type="number" step="0.01" id="price" value="${editData?.price || ''}" required class="w-full px-4 py-2 rounded-lg" placeholder="74.00">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Конфигурация -->
+                            <div class="glass rounded-xl p-6">
+                                <h2 class="text-lg font-semibold text-amber-500 mb-4 flex items-center gap-2">
+                                    <i class="fas fa-cog"></i> Конфигурация и полярност
+                                </h2>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Подредба (Layout) *</label>
+                                        <select id="layout" required class="w-full px-4 py-2 rounded-lg">
+                                            <option value="0" ${editData?.layout === '0' ? 'selected' : ''}>0 - Стандартна</option>
+                                            <option value="1" ${editData?.layout === '1' ? 'selected' : ''}>1 - Обратна</option>
+                                            <option value="4" ${editData?.layout === '4' ? 'selected' : ''}>4 - Усилена 0</option>
+                                            <option value="5" ${editData?.layout === '5' ? 'selected' : ''}>5 - Усилена 1</option>
+                                            <option value="9" ${editData?.layout === '9' ? 'selected' : ''}>9 - American</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Полярност *</label>
+                                        <select id="polarity" required class="w-full px-4 py-2 rounded-lg">
+                                            <option value="L" ${editData?.polarity === 'L' ? 'selected' : ''}>L - Лява (+ отляво)</option>
+                                            <option value="R" ${editData?.polarity === 'R' ? 'selected' : ''}>R - Дясна (+ отдясно)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Тип клеми *</label>
+                                        <select id="terminalType" required class="w-full px-4 py-2 rounded-lg">
+                                            <option value="STD" ${editData?.terminalType === 'STD' ? 'selected' : ''}>STD - Стандартни</option>
+                                            <option value="JIS" ${editData?.terminalType === 'JIS' ? 'selected' : ''}>JIS - Японски стандарт</option>
+                                            <option value="DIN" ${editData?.terminalType === 'DIN' ? 'selected' : ''}>DIN - Немски стандарт</option>
+                                            <option value="HEX" ${editData?.terminalType === 'HEX' ? 'selected' : ''}>HEX - Шестостен</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Размери -->
+                            <div class="glass rounded-xl p-6">
+                                <h2 class="text-lg font-semibold text-amber-500 mb-4 flex items-center gap-2">
+                                    <i class="fas fa-ruler-combined"></i> Размери (мм)
+                                </h2>
+                                <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Дължина (L)</label>
+                                        <input type="number" id="length" value="${editData?.length || ''}" class="w-full px-4 py-2 rounded-lg" placeholder="150">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Ширина (W)</label>
+                                        <input type="number" id="width" value="${editData?.width || ''}" class="w-full px-4 py-2 rounded-lg" placeholder="87">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Височина (H)</label>
+                                        <input type="number" id="height" value="${editData?.height || ''}" class="w-full px-4 py-2 rounded-lg" placeholder="105">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Дължина 1 (L1)</label>
+                                        <input type="number" id="length1" value="${editData?.length1 || '0'}" class="w-full px-4 py-2 rounded-lg" placeholder="130">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Ширина 1 (W1)</label>
+                                        <input type="number" id="width1" value="${editData?.width1 || '0'}" class="w-full px-4 py-2 rounded-lg" placeholder="0">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Височина 1 (H1)</label>
+                                        <input type="number" id="height1" value="${editData?.height1 || '0'}" class="w-full px-4 py-2 rounded-lg" placeholder="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Технически детайли -->
+                            <div class="glass rounded-xl p-6">
+                                <h2 class="text-lg font-semibold text-amber-500 mb-4 flex items-center gap-2">
+                                    <i class="fas fa-tools"></i> Технически спецификации
+                                </h2>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Тегло (кг)</label>
+                                        <input type="number" step="0.1" id="weight" value="${editData?.weight || ''}" class="w-full px-4 py-2 rounded-lg" placeholder="3.5">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Завинтване основа</label>
+                                        <select id="baseHoldDown" class="w-full px-4 py-2 rounded-lg">
+                                            <option value="B0" ${editData?.baseHoldDown === 'B0' ? 'selected' : ''}>B0 - Без</option>
+                                            <option value="B1" ${editData?.baseHoldDown === 'B1' ? 'selected' : ''}>B1 - Стандартно</option>
+                                            <option value="B2" ${editData?.baseHoldDown === 'B2' ? 'selected' : ''}>B2 - Усилено</option>
+                                            <option value="B3" ${editData?.baseHoldDown === 'B3' ? 'selected' : ''}>B3 - Японско</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Винт - дължина (мм)</label>
+                                        <input type="number" id="screwLength" value="${editData?.screwLength || ''}" class="w-full px-4 py-2 rounded-lg" placeholder="20">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Винт - диаметър (мм)</label>
+                                        <input type="number" id="screwDiameter" value="${editData?.screwDiameter || ''}" class="w-full px-4 py-2 rounded-lg" placeholder="6">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Винт - резба</label>
+                                        <input type="text" id="screwPart" value="${editData?.screwPart || ''}" class="w-full px-4 py-2 rounded-lg" placeholder="M6">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Изходи за газове</label>
+                                        <select id="gasExits" class="w-full px-4 py-2 rounded-lg">
+                                            <option value="NO" ${editData?.gasExits === 'NO' ? 'selected' : ''}>NO - Не</option>
+                                            <option value="YES" ${editData?.gasExits === 'YES' ? 'selected' : ''}>YES - Да</option>
+                                            <option value="LEFT" ${editData?.gasExits === 'LEFT' ? 'selected' : ''}>LEFT - Отляво</option>
+                                            <option value="RIGHT" ${editData?.gasExits === 'RIGHT' ? 'selected' : ''}>RIGHT - Отдясно</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Флагове на клемите</label>
+                                        <select id="terminalFlags" class="w-full px-4 py-2 rounded-lg">
+                                            <option value="NO" ${editData?.terminalFlags === 'NO' ? 'selected' : ''}>NO - Не</option>
+                                            <option value="YES" ${editData?.terminalFlags === 'YES' ? 'selected' : ''}>YES - Да</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Дръжка</label>
+                                        <select id="handle" class="w-full px-4 py-2 rounded-lg">
+                                            <option value="NO" ${editData?.handle === 'NO' ? 'selected' : ''}>NO - Не</option>
+                                            <option value="YES" ${editData?.handle === 'YES' ? 'selected' : ''}>YES - Да</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-sm text-slate-400 mb-1">Без киселина (сух)</label>
+                                        <select id="withoutAcid" class="w-full px-4 py-2 rounded-lg">
+                                            <option value="NO" ${editData?.withoutAcid === 'NO' ? 'selected' : ''}>NO - С киселина</option>
+                                            <option value="YES" ${editData?.withoutAcid === 'YES' ? 'selected' : ''}>YES - Без киселина (трябва да се пълни)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Приложения и бележки -->
+                            <div class="glass rounded-xl p-6">
+                                <h2 class="text-lg font-semibold text-amber-500 mb-4 flex items-center gap-2">
+                                    <i class="fas fa-motorcycle"></i> Приложения и допълнителна информация
+                                </h2>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">OEM Референции (разделени със запетая)</label>
+                                        <textarea id="oemReferences" rows="2" class="w-full px-4 py-2 rounded-lg resize-none" placeholder="HONDA 31500-HA7-672, YAMAHA 5JX-H2105-00...">${editData?.oemReferences?.join(', ') || ''}</textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Съвместимост/Приложения</label>
+                                        <textarea id="applications" rows="2" class="w-full px-4 py-2 rounded-lg resize-none" placeholder="Honda CB500 2001-2005, Yamaha FZ6...">${editData?.applications || ''}</textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-slate-400 mb-1">Бележки</label>
+                                        <textarea id="notes" rows="3" class="w-full px-4 py-2 rounded-lg resize-none" placeholder="Допълнителна информация...">${editData?.notes || ''}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-4">
+                                <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold rounded-lg transition-all">
+                                    <i class="fas fa-save mr-2"></i> ${isEdit ? 'Запази промените' : 'Добави акумулатор'}
+                                </button>
+                                <button type="button" onclick="app.navigate('database')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-all">
+                                    Отказ
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+            },
+
+            saveBattery(id) {
+                const battery = {
+                    id: id || Date.now(),
+                    brand: document.getElementById('brand').value.toUpperCase(),
+                    model: document.getElementById('model').value,
+                    oemCode: document.getElementById('oemCode').value,
+                    ean: document.getElementById('ean').value,
+                    voltage: parseInt(document.getElementById('voltage').value),
+                    capacityAh: parseFloat(document.getElementById('capacityAh').value),
+                    capacityCca: parseInt(document.getElementById('capacityCca').value) || 0,
+                    technology: document.getElementById('technology').value,
+                    layout: document.getElementById('layout').value,
+                    polarity: document.getElementById('polarity').value,
+                    terminalType: document.getElementById('terminalType').value,
+                    length: parseInt(document.getElementById('length').value) || 0,
+                    width: parseInt(document.getElementById('width').value) || 0,
+                    height: parseInt(document.getElementById('height').value) || 0,
+                    length1: parseInt(document.getElementById('length1').value) || 0,
+                    width1: parseInt(document.getElementById('width1').value) || 0,
+                    height1: parseInt(document.getElementById('height1').value) || 0,
+                    weight: parseFloat(document.getElementById('weight').value) || 0,
+                    baseHoldDown: document.getElementById('baseHoldDown').value,
+                    screwLength: parseInt(document.getElementById('screwLength').value) || 0,
+                    screwDiameter: parseInt(document.getElementById('screwDiameter').value) || 0,
+                    screwPart: document.getElementById('screwPart').value,
+                    gasExits: document.getElementById('gasExits').value,
+                    terminalFlags: document.getElementById('terminalFlags').value,
+                    handle: document.getElementById('handle').value,
+                    withoutAcid: document.getElementById('withoutAcid').value,
+                    oemReferences: document.getElementById('oemReferences').value.split(',').map(s => s.trim()).filter(s => s),
+                    applications: document.getElementById('applications').value,
+                    notes: document.getElementById('notes').value,
+                    stock: parseInt(document.getElementById('stock').value) || 0,
+                    price: parseFloat(document.getElementById('price').value) || 0,
+                    dateAdded: new Date().toISOString()
+                };
+
+                if (id) {
+                    const idx = this.batteries.findIndex(b => b.id === id);
+                    this.batteries[idx] = battery;
+                } else {
+                    this.batteries.push(battery);
+                }
+
+                this.save();
+                this.showNotification(id ? 'Акумулаторът е обновен' : 'Акумулаторът е добавен', 'success');
+                this.navigate('database');
+            },
+
+            renderDatabase(container) {
+                // Filter batteries based on toggle
+                const displayBatteries = this.showOnlyInStock 
+                    ? this.batteries.filter(b => b.stock > 0)
+                    : this.batteries;
+
+                const inStockCount = this.batteries.filter(b => b.stock > 0).length;
+                
+                container.innerHTML = `
+                    <div class="animate-fade-in">
+                        <div class="flex justify-between items-center mb-6">
+                            <div class="flex items-center gap-4">
+                                <h1 class="text-3xl font-bold text-white">База данни акумулатори</h1>
+                                <span class="text-slate-400">(${displayBatteries.length} от ${this.batteries.length})</span>
+                            </div>
+                            <div class="flex gap-3">
+                                <!-- Toggle Button for In Stock Only -->
+                                <button onclick="app.toggleInStockFilter()" 
+                                    class="toggle-btn px-4 py-2 rounded-lg flex items-center gap-2 font-medium ${this.showOnlyInStock ? 'active' : ''}">
+                                    <i class="fas fa-check-circle icon-check"></i>
+                                    <i class="fas fa-box icon-box"></i>
+                                    <span>Покажи само наличните</span>
+                                    ${this.showOnlyInStock ? `<span class="ml-2 bg-white/20 px-2 py-0.5 rounded text-xs">${inStockCount}</span>` : ''}
+                                </button>
+                                
+                                <button onclick="app.exportToCSV()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-2">
+                                    <i class="fas fa-file-csv"></i> Експорт CSV
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="glass rounded-xl overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead class="bg-slate-800/50 text-xs uppercase text-slate-400">
+                                        <tr>
+                                            <th class="px-4 py-3">Марка/Модел</th>
+                                            <th class="px-4 py-3">Технология</th>
+                                            <th class="px-4 py-3">Ah/CCA</th>
+                                            <th class="px-4 py-3">Размери (LxWxH)</th>
+                                            <th class="px-4 py-3">Полярност</th>
+                                            <th class="px-4 py-3">Тегло</th>
+                                            <th class="px-4 py-3 text-center">Наличност</th>
+                                            <th class="px-4 py-3 text-right">Цена (EUR)</th>
+                                            <th class="px-4 py-3">Действия</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-800 text-sm">
+                                        ${displayBatteries.map(b => {
+                                            const stockClass = b.stock === 0 ? 'stock-low' : b.stock < 5 ? 'stock-medium' : 'stock-high';
+                                            return `
+                                            <tr class="hover:bg-slate-800/30 transition-colors">
+                                                <td class="px-4 py-3">
+                                                    <div class="font-bold text-white">${b.brand} ${b.model}</div>
+                                                    <div class="text-xs text-slate-500">${b.oemCode || 'N/A'}</div>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <span class="tech-badge tech-${b.technology.toLowerCase()}">${b.technology}</span>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <div class="text-white">${b.capacityAh}Ah</div>
+                                                    <div class="text-xs text-amber-500">${b.capacityCca}CCA</div>
+                                                </td>
+                                                <td class="px-4 py-3 text-slate-300 font-mono text-xs">
+                                                    ${b.length}x${b.width}x${b.height} мм
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <span class="${b.polarity === 'L' ? 'terminal-positive' : 'terminal-negative'} font-bold">
+                                                        ${b.polarity === 'L' ? 'L' : 'R'}
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-3 text-slate-300">${b.weight} кг</td>
+                                                <td class="px-4 py-3 text-center">
+                                                    <span class="px-2 py-1 rounded text-xs font-bold ${stockClass}">${b.stock} бр.</span>
+                                                </td>
+                                                <td class="px-4 py-3 text-right">
+                                                    <span class="price-tag">${b.price?.toFixed(2) || '0.00'} €</span>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <button onclick="app.viewDetails(${b.id})" class="text-blue-400 hover:text-blue-300 mr-3" title="Детайли">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button onclick="app.editBattery(${b.id})" class="text-amber-400 hover:text-amber-300 mr-3" title="Редакция">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button onclick="app.deleteBattery(${b.id})" class="text-red-400 hover:text-red-300" title="Изтрий">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `}).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            ${displayBatteries.length === 0 ? '<div class="p-8 text-center text-slate-400">Няма записи</div>' : ''}
+                        </div>
+                    </div>
+                `;
+            },
+
+            // Toggle filter function
+            toggleInStockFilter() {
+                this.showOnlyInStock = !this.showOnlyInStock;
+                // Re-render database view
+                this.renderDatabase(document.getElementById('contentArea'));
+            },
+
+            renderSearch(container) {
+                container.innerHTML = `
+                    <div class="animate-fade-in">
+                        <h1 class="text-3xl font-bold text-white mb-6">Търсене в базата данни</h1>
+                        
+                        <div class="glass rounded-xl p-6 mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-amber-500">Основни критерии</h3>
+                                <button onclick="app.toggleSearchInStock()" 
+                                    class="toggle-btn px-4 py-2 rounded-lg flex items-center gap-2 font-medium text-sm ${this.showOnlyInStock ? 'active' : ''}">
+                                    <i class="fas fa-check-circle icon-check"></i>
+                                    <i class="fas fa-box icon-box"></i>
+                                    <span>Само налични</span>
+                                </button>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <input type="text" id="searchBrand" placeholder="Марка..." class="px-4 py-2 rounded-lg" onkeyup="app.performSearch()">
+                                <input type="text" id="searchModel" placeholder="Модел..." class="px-4 py-2 rounded-lg" onkeyup="app.performSearch()">
+                                <input type="text" id="searchOem" placeholder="OEM код..." class="px-4 py-2 rounded-lg" onkeyup="app.performSearch()">
+                                <select id="searchTech" class="px-4 py-2 rounded-lg" onchange="app.performSearch()">
+                                    <option value="">Всички технологии</option>
+                                    <option value="SLI">SLI</option>
+                                    <option value="MF">MF</option>
+                                    <option value="AGM">AGM</option>
+                                    <option value="GEL">GEL</option>
+                                    <option value="Li">Li</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                <input type="number" id="searchAh" placeholder="Капацитет Ah..." class="px-4 py-2 rounded-lg" onkeyup="app.performSearch()">
+                                <input type="number" id="searchCca" placeholder="CCA..." class="px-4 py-2 rounded-lg" onkeyup="app.performSearch()">
+                                <select id="searchPolarity" class="px-4 py-2 rounded-lg" onchange="app.performSearch()">
+                                    <option value="">Всяка полярност</option>
+                                    <option value="L">Лява (+ отляво)</option>
+                                    <option value="R">Дясна (+ отдясно)</option>
+                                </select>
+                            </div>
+                            
+                            <h3 class="text-lg font-semibold text-amber-500 mb-4 mt-6 border-t border-slate-700 pt-4">Филтър по размери (мм)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Дължина (L) - от / до</label>
+                                    <div class="flex gap-2">
+                                        <input type="number" id="searchLengthMin" placeholder="Min" class="px-3 py-2 rounded-lg w-1/2" onchange="app.performSearch()">
+                                        <input type="number" id="searchLengthMax" placeholder="Max" class="px-3 py-2 rounded-lg w-1/2" onchange="app.performSearch()">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Ширина (W) - от / до</label>
+                                    <div class="flex gap-2">
+                                        <input type="number" id="searchWidthMin" placeholder="Min" class="px-3 py-2 rounded-lg w-1/2" onchange="app.performSearch()">
+                                        <input type="number" id="searchWidthMax" placeholder="Max" class="px-3 py-2 rounded-lg w-1/2" onchange="app.performSearch()">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Височина (H) - от / до</label>
+                                    <div class="flex gap-2">
+                                        <input type="number" id="searchHeightMin" placeholder="Min" class="px-3 py-2 rounded-lg w-1/2" onchange="app.performSearch()">
+                                        <input type="number" id="searchHeightMax" placeholder="Max" class="px-3 py-2 rounded-lg w-1/2" onchange="app.performSearch()">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Цена (EUR) - от / до</label>
+                                    <div class="flex gap-2">
+                                        <input type="number" id="searchPriceMin" placeholder="Min цена" class="px-3 py-2 rounded-lg w-1/2" onchange="app.performSearch()">
+                                        <input type="number" id="searchPriceMax" placeholder="Max цена" class="px-3 py-2 rounded-lg w-1/2" onchange="app.performSearch()">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Наличност</label>
+                                    <select id="searchStock" class="px-4 py-2 rounded-lg w-full" onchange="app.performSearch()">
+                                        <option value="">Всички</option>
+                                        <option value="in">В наличност (>0)</option>
+                                        <option value="out">Изчерпани (=0)</option>
+                                        <option value="low">Критична (<5)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="searchResults" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="col-span-full text-center text-slate-400 py-12">
+                                <i class="fas fa-search text-4xl mb-4"></i>
+                                <p>Започнете да пишете или настройте филтрите за търсене...</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            toggleSearchInStock() {
+                this.showOnlyInStock = !this.showOnlyInStock;
+                // Update button visual state
+                const btn = event.currentTarget;
+                if (this.showOnlyInStock) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+                this.performSearch();
+            },
+
+            performSearch() {
+                const brand = document.getElementById('searchBrand').value.toLowerCase();
+                const model = document.getElementById('searchModel').value.toLowerCase();
+                const oem = document.getElementById('searchOem').value.toLowerCase();
+                const tech = document.getElementById('searchTech').value;
+                const ah = document.getElementById('searchAh').value;
+                const cca = document.getElementById('searchCca').value;
+                const polarity = document.getElementById('searchPolarity').value;
+                
+                // Dimension filters
+                const lengthMin = document.getElementById('searchLengthMin').value;
+                const lengthMax = document.getElementById('searchLengthMax').value;
+                const widthMin = document.getElementById('searchWidthMin').value;
+                const widthMax = document.getElementById('searchWidthMax').value;
+                const heightMin = document.getElementById('searchHeightMin').value;
+                const heightMax = document.getElementById('searchHeightMax').value;
+                
+                // Price and stock filters
+                const priceMin = document.getElementById('searchPriceMin').value;
+                const priceMax = document.getElementById('searchPriceMax').value;
+                const stock = document.getElementById('searchStock').value;
+
+                // Start with all batteries or only in stock
+                let results = this.showOnlyInStock 
+                    ? this.batteries.filter(b => b.stock > 0)
+                    : [...this.batteries];
+
+                results = results.filter(b => {
+                    // Basic filters
+                    const matchBasic = (!brand || b.brand.toLowerCase().includes(brand)) &&
+                           (!model || b.model.toLowerCase().includes(model)) &&
+                           (!oem || (b.oemCode && b.oemCode.toLowerCase().includes(oem))) &&
+                           (!tech || b.technology === tech) &&
+                           (!ah || b.capacityAh >= parseFloat(ah) - 2 && b.capacityAh <= parseFloat(ah) + 2) &&
+                           (!cca || b.capacityCca >= parseInt(cca) - 50 && b.capacityCca <= parseInt(cca) + 50) &&
+                           (!polarity || b.polarity === polarity);
+                    
+                    // Dimension filters
+                    const matchLength = (!lengthMin || b.length >= parseInt(lengthMin)) && (!lengthMax || b.length <= parseInt(lengthMax));
+                    const matchWidth = (!widthMin || b.width >= parseInt(widthMin)) && (!widthMax || b.width <= parseInt(widthMax));
+                    const matchHeight = (!heightMin || b.height >= parseInt(heightMin)) && (!heightMax || b.height <= parseInt(heightMax));
+                    
+                    // Price and stock filters
+                    const matchPrice = (!priceMin || b.price >= parseFloat(priceMin)) && (!priceMax || b.price <= parseFloat(priceMax));
+                    let matchStock = true;
+                    if (stock === 'in') matchStock = b.stock > 0;
+                    else if (stock === 'out') matchStock = b.stock === 0;
+                    else if (stock === 'low') matchStock = b.stock > 0 && b.stock < 5;
+
+                    return matchBasic && matchLength && matchWidth && matchHeight && matchPrice && matchStock;
+                });
+
+                const container = document.getElementById('searchResults');
+                if (results.length === 0) {
+                    container.innerHTML = '<div class="col-span-full text-center text-slate-400 py-12">Няма намерени резултати</div>';
+                } else {
+                    container.innerHTML = results.map(b => {
+                        const stockClass = b.stock === 0 ? 'stock-low' : b.stock < 5 ? 'stock-medium' : 'stock-high';
+                        return `
+                        <div class="battery-card rounded-xl p-4 hover-lift cursor-pointer" onclick="app.viewDetails(${b.id})">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-bold text-white">${b.brand} ${b.model}</h3>
+                                    <p class="text-xs text-slate-400">${b.oemCode || 'N/A'}</p>
+                                </div>
+                                <span class="tech-badge tech-${b.technology.toLowerCase()}">${b.technology}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+                                <div class="text-slate-300"><i class="fas fa-bolt text-amber-500 mr-1"></i>${b.capacityAh}Ah / ${b.capacityCca}CCA</div>
+                                <div class="text-slate-300"><i class="fas fa-weight-hanging text-blue-500 mr-1"></i>${b.weight} кг</div>
+                                <div class="text-slate-300"><i class="fas fa-ruler text-green-500 mr-1"></i>${b.length}x${b.width}x${b.height}</div>
+                                <div class="${b.polarity === 'L' ? 'terminal-positive' : 'terminal-negative'}">
+                                    <i class="fas fa-plus-minus mr-1"></i>${b.polarity === 'L' ? 'Лява' : 'Дясна'}
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center border-t border-slate-700 pt-2">
+                                <span class="px-2 py-0.5 rounded text-xs font-bold ${stockClass}">${b.stock} бр.</span>
+                                <span class="price-tag font-bold">${b.price?.toFixed(2) || '0.00'} €</span>
+                            </div>
+                            ${b.applications ? `<p class="text-xs text-slate-400 truncate mt-2">${b.applications}</p>` : ''}
+                        </div>
+                    `}).join('');
+                }
+            },
+
+            renderImport(container) {
+                container.innerHTML = `
+                    <div class="animate-fade-in">
+                        <h1 class="text-3xl font-bold text-white mb-6">Импорт / Експорт</h1>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="glass rounded-xl p-6">
+                                <h2 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                                    <i class="fas fa-file-import text-green-500"></i> Импорт от CSV
+                                </h2>
+                                <p class="text-slate-400 mb-4">Качете CSV файл с колони: brand,model,oemCode,ean,voltage,capacityAh,capacityCca,technology,layout,polarity,terminalType,length,width,height,length1,width1,height1,weight,baseHoldDown,screwLength,screwDiameter,screwPart,gasExits,terminalFlags,handle,withoutAcid,oemReferences,applications,notes,stock,price</p>
+                                <input type="file" id="csvFile" accept=".csv" class="w-full mb-4 p-2 bg-slate-800 rounded-lg border border-slate-700 text-white">
+                                <button onclick="app.importCSV()" class="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">
+                                    Импортирай данни
+                                </button>
+                            </div>
+
+                            <div class="glass rounded-xl p-6">
+                                <h2 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                                    <i class="fas fa-file-export text-blue-500"></i> Експорт към CSV
+                                </h2>
+                                <p class="text-slate-400 mb-4">Изтеглете цялата база данни като CSV файл за архивиране или обработка в Excel.</p>
+                                <button onclick="app.exportToCSV()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                                    Изтегли CSV
+                                </button>
+                            </div>
+
+                            <div class="glass rounded-xl p-6 border border-red-500/30">
+                                <h2 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                                    <i class="fas fa-exclamation-triangle text-red-500"></i> Опасна зона
+                                </h2>
+                                <p class="text-slate-400 mb-4">Изчистване на всички данни от базата. Това действие не може да бъде отменено!</p>
+                                <button onclick="app.clearAll()" class="w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">
+                                    Изчисти базата данни
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            viewDetails(id) {
+                const b = this.batteries.find(bat => bat.id === id);
+                if (!b) return;
+
+                const stockClass = b.stock === 0 ? 'stock-low' : b.stock < 5 ? 'stock-medium' : 'stock-high';
+                const modal = document.getElementById('modalContainer');
+                const content = document.getElementById('modalContent');
+                
+                content.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-6 border-b border-slate-700 pb-4">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white">${b.brand} ${b.model}</h2>
+                                <p class="text-slate-400">${b.oemCode || 'Няма OEM код'}</p>
+                            </div>
+                            <div class="flex gap-2 items-center">
+                                <span class="px-3 py-1 rounded text-sm font-bold ${stockClass}">${b.stock} бр. в наличност</span>
+                                <span class="tech-badge tech-${b.technology.toLowerCase()} text-lg">${b.technology}</span>
+                                <button onclick="document.getElementById('modalContainer').classList.add('hidden')" class="text-slate-400 hover:text-white ml-2">
+                                    <i class="fas fa-times text-xl"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Електрически -->
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-semibold text-amber-500 flex items-center gap-2">
+                                    <i class="fas fa-bolt"></i> Електрически параметри и цена
+                                </h3>
+                                <div class="measurement-box space-y-2">
+                                    <div class="flex justify-between"><span class="text-slate-400">Напрежение:</span> <span class="text-white font-bold">${b.voltage}V</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-400">Капацитет:</span> <span class="text-white font-bold">${b.capacityAh} Ah</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-400">CCA (стартов ток):</span> <span class="text-amber-500 font-bold">${b.capacityCca} A</span></div>
+                                    <div class="flex justify-between border-t border-slate-700 pt-2 mt-2">
+                                        <span class="text-slate-400">Цена:</span> 
+                                        <span class="price-tag text-xl">${b.price?.toFixed(2) || '0.00'} €</span>
+                                    </div>
+                                </div>
+
+                                <h3 class="text-lg font-semibold text-amber-500 flex items-center gap-2 mt-6">
+                                    <i class="fas fa-cog"></i> Конфигурация
+                                </h3>
+                                <div class="measurement-box space-y-2">
+                                    <div class="flex justify-between"><span class="text-slate-400">Подредба (Layout):</span> <span class="text-white">${b.layout}</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-400">Полярност:</span> 
+                                        <span class="${b.polarity === 'L' ? 'terminal-positive' : 'terminal-negative'} font-bold">
+                                            ${b.polarity === 'L' ? 'Лява (+ отляво)' : 'Дясна (+ отдясно)'}
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between"><span class="text-slate-400">Тип клеми:</span> <span class="text-white">${b.terminalType}</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Физически -->
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-semibold text-amber-500 flex items-center gap-2">
+                                    <i class="fas fa-ruler-combined"></i> Размери и тегло
+                                </h3>
+                                <div class="measurement-box space-y-2">
+                                    <div class="flex justify-between"><span class="text-slate-400">Дължина (L):</span> <span class="text-white">${b.length} мм</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-400">Ширина (W):</span> <span class="text-white">${b.width} мм</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-400">Височина (H):</span> <span class="text-white">${b.height} мм</span></div>
+                                    ${b.length1 > 0 ? `<div class="flex justify-between"><span class="text-slate-400">Дължина 1 (L1):</span> <span class="text-white">${b.length1} мм</span></div>` : ''}
+                                    <div class="flex justify-between border-t border-slate-700 pt-2 mt-2">
+                                        <span class="text-slate-400">Тегло:</span> <span class="text-white font-bold">${b.weight} кг</span>
+                                    </div>
+                                </div>
+
+                                <h3 class="text-lg font-semibold text-amber-500 flex items-center gap-2 mt-6">
+                                    <i class="fas fa-tools"></i> Технически детайли
+                                </h3>
+                                <div class="measurement-box space-y-2 text-sm">
+                                    <div class="flex justify-between"><span class="text-slate-400">Завинтване:</span> <span class="text-white">${b.baseHoldDown}</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-400">Винт:</span> <span class="text-white">${b.screwPart} x ${b.screwLength}мм (Ø${b.screwDiameter}мм)</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-400">Изходи за газове:</span> <span class="text-white">${b.gasExits}</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-400">Флагове:</span> <span class="text-white">${b.terminalFlags}</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-400">Дръжка:</span> <span class="text-white">${b.handle}</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-400">С киселина:</span> <span class="text-white">${b.withoutAcid === 'YES' ? 'Не (сух)' : 'Да'}</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${b.oemReferences.length > 0 ? `
+                            <div class="mt-6">
+                                <h3 class="text-lg font-semibold text-amber-500 mb-2">OEM Референции</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    ${b.oemReferences.map(ref => `<span class="px-3 py-1 bg-slate-800 rounded-full text-sm text-slate-300 border border-slate-700">${ref}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${b.applications ? `
+                            <div class="mt-6">
+                                <h3 class="text-lg font-semibold text-amber-500 mb-2">Съвместимост</h3>
+                                <p class="text-slate-300 bg-slate-800/50 p-3 rounded-lg">${b.applications}</p>
+                            </div>
+                        ` : ''}
+
+                        ${b.notes ? `
+                            <div class="mt-6">
+                                <h3 class="text-lg font-semibold text-amber-500 mb-2">Бележки</h3>
+                                <p class="text-slate-400 text-sm italic">${b.notes}</p>
+                            </div>
+                        ` : ''}
+
+                        <div class="mt-6 pt-4 border-t border-slate-700 flex gap-3">
+                            <button onclick="app.editBattery(${b.id})" class="flex-1 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg">
+                                <i class="fas fa-edit mr-2"></i> Редактирай
+                            </button>
+                            <button onclick="app.deleteBattery(${b.id})" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                modal.classList.remove('hidden');
+            },
+
+            editBattery(id) {
+                document.getElementById('modalContainer').classList.add('hidden');
+                const battery = this.batteries.find(b => b.id === id);
+                this.renderAddForm(document.getElementById('contentArea'), battery);
+            },
+
+            deleteBattery(id) {
+                if (confirm('Сигурни ли сте, че искате да изтриете този акумулатор?')) {
+                    this.batteries = this.batteries.filter(b => b.id !== id);
+                    this.save();
+                    this.showNotification('Акумулаторът е изтрит', 'success');
+                    document.getElementById('modalContainer')?.classList.add('hidden');
+                    this.navigate('database');
+                }
+            },
+
+            exportToCSV() {
+                const headers = ['brand', 'model', 'oemCode', 'ean', 'voltage', 'capacityAh', 'capacityCca', 'technology', 'layout', 'polarity', 'terminalType', 'length', 'width', 'height', 'length1', 'width1', 'height1', 'weight', 'baseHoldDown', 'screwLength', 'screwDiameter', 'screwPart', 'gasExits', 'terminalFlags', 'handle', 'withoutAcid', 'oemReferences', 'applications', 'notes', 'stock', 'price'];
+                
+                const csvContent = [
+                    headers.join(','),
+                    ...this.batteries.map(b => [
+                        b.brand, b.model, b.oemCode || '', b.ean || '', b.voltage, b.capacityAh, b.capacityCca,
+                        b.technology, b.layout, b.polarity, b.terminalType, b.length, b.width, b.height,
+                        b.length1, b.width1, b.height1, b.weight, b.baseHoldDown, b.screwLength, b.screwDiameter,
+                        b.screwPart, b.gasExits, b.terminalFlags, b.handle, b.withoutAcid,
+                        `"${(b.oemReferences || []).join(';')}"`, `"${(b.applications || '').replace(/"/g, '""')}"`, `"${(b.notes || '').replace(/"/g, '""')}"`,
+                        b.stock || 0, b.price || 0
+                    ].join(','))
+                ].join('\n');
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `motobatt_database_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+            },
+
+            importCSV() {
+                const fileInput = document.getElementById('csvFile');
+                const file = fileInput.files[0];
+                if (!file) {
+                    this.showNotification('Моля изберете файл', 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target.result;
+                    const lines = text.split('\n').filter(l => l.trim());
+                    const headers = lines[0].split(',').map(h => h.trim());
+                    
+                    let imported = 0;
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+                        const battery = {};
+                        headers.forEach((h, idx) => {
+                            if (h === 'oemReferences') {
+                                battery[h] = values[idx] ? values[idx].split(';') : [];
+                            } else if (['voltage', 'capacityAh', 'capacityCca', 'length', 'width', 'height', 'length1', 'width1', 'height1', 'weight', 'screwLength', 'screwDiameter', 'stock'].includes(h)) {
+                                battery[h] = parseFloat(values[idx]) || 0;
+                            } else if (h === 'price') {
+                                battery[h] = parseFloat(values[idx]) || 0;
+                            } else {
+                                battery[h] = values[idx] || '';
+                            }
+                        });
+                        battery.id = Date.now() + i;
+                        battery.dateAdded = new Date().toISOString();
+                        this.batteries.push(battery);
+                        imported++;
+                    }
+                    
+                    this.save();
+                    this.showNotification(`Импортирани ${imported} акумулатора`, 'success');
+                    this.navigate('database');
+                };
+                reader.readAsText(file);
+            },
+
+            clearAll() {
+                if (confirm('ВНИМАНИЕ! Това ще изтрие ВСИЧКИ данни! Сигурни ли сте?')) {
+                    if (confirm('Последно потвърждение: Изтриване на цялата база данни?')) {
+                        this.batteries = [];
+                        this.save();
+                        this.showNotification('Базата данни е изчистена', 'success');
+                        this.navigate('dashboard');
+                    }
+                }
+            },
+
+            showNotification(message, type = 'info') {
+                const div = document.createElement('div');
+                div.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-2xl z-50 animate-fade-in ${
+                    type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                } text-white font-medium`;
+                div.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check' : type === 'error' ? 'fa-exclamation' : 'fa-info-circle'} mr-2"></i>${message}`;
+                document.body.appendChild(div);
+                setTimeout(() => div.remove(), 3000);
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>
