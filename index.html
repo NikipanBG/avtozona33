@@ -4,7 +4,7 @@ html_content = '''<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AUTOZONE 33 - HUB PRO v2.0</title>
+    <title>AUTOZONE 33 - HUB PRO v2.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -74,6 +74,25 @@ html_content = '''<!DOCTYPE html>
             margin-top: 20px;
             font-size: 18px;
             font-weight: 300;
+        }
+
+        /* ERROR MESSAGE */
+        .error-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--danger);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            z-index: 9998;
+            max-width: 400px;
+        }
+        .error-message.show {
+            display: block;
         }
 
         /* HAMBURGER BUTTON */
@@ -612,6 +631,13 @@ html_content = '''<!DOCTYPE html>
         <div style="color: rgba(255,255,255,0.6); margin-top: 10px; font-size: 14px;">Зареждане на модули...</div>
     </div>
 
+    <!-- Error Message -->
+    <div class="error-message" id="errorMessage">
+        <h3>⚠️ Грешка при зареждане</h3>
+        <p id="errorText">Модулът не може да бъде зареден</p>
+        <button class="quick-btn" style="margin-top: 20px;" onclick="hideError()">Затвори</button>
+    </div>
+
     <!-- Mobile Menu Toggle -->
     <button class="menu-toggle" onclick="toggleMenu()">☰</button>
     <div class="overlay" onclick="toggleMenu()"></div>
@@ -623,7 +649,7 @@ html_content = '''<!DOCTYPE html>
                 <div class="brand-icon">🏢</div>
                 <div class="brand-text">
                     <h1>AUTOZONE 33</h1>
-                    <span>HUB PRO v2.0</span>
+                    <span>HUB PRO v2.1</span>
                 </div>
             </div>
         </div>
@@ -839,21 +865,53 @@ html_content = '''<!DOCTYPE html>
             </div>
 
             <!-- Iframe -->
-            <iframe id="frame" src="OrderV16.html"></iframe>
+            <iframe id="frame" src="OrderV16%20final.html"></iframe>
         </div>
     </main>
 
     <script>
-        // Module URLs mapping
+        // Module URLs mapping - КОРИГИРАНИ ИМЕНА СЪС СПЕЙСОВЕТЕ
         const MODULES = {
-            order: { name: 'Нова Поръчка', url: 'OrderV16.html', icon: '🛒' },
-            packing: { name: 'Пакетиране & Етикети', url: 'PacinglistV7.html', icon: '📦' },
-            inventory: { name: 'Наличности', url: 'Nalichnost V12.html', icon: '📊' },
-            tracking: { name: 'Проследяване', url: 'Traging.HTML', icon: '🚚' },
-            battery: { name: 'Сравнител Цени', url: 'Battery price pro V4.html', icon: '⚖️' },
-            cash: { name: 'Касов Отчет', url: 'kasov-otchet-online V3.html', icon: '💰' },
-            fleet: { name: 'Автопарк', url: 'autofleet PRO.html', icon: '🚐' },
-            moto: { name: 'Moto Manager', url: 'Moto Mahager V1.html', icon: '🏍️' }
+            order: { 
+                name: 'Нова Поръчка', 
+                url: 'OrderV16%20final.html',  // С %20 вместо space
+                icon: '🛒' 
+            },
+            packing: { 
+                name: 'Пакетиране & Етикети', 
+                url: 'PacinglistV7%20final.html', 
+                icon: '📦' 
+            },
+            inventory: { 
+                name: 'Наличности', 
+                url: 'Nalichnost%20V12%20Avtozona33%20final.html', 
+                icon: '📊' 
+            },
+            tracking: { 
+                name: 'Проследяване', 
+                url: 'Traging%20final.HTML', 
+                icon: '🚚' 
+            },
+            battery: { 
+                name: 'Сравнител Цени', 
+                url: 'Battery%20price%20pro%20V4%20final.html', 
+                icon: '⚖️' 
+            },
+            cash: { 
+                name: 'Касов Отчет', 
+                url: 'kasov-otchet-online%20V3%20final.html', 
+                icon: '💰' 
+            },
+            fleet: { 
+                name: 'Автопарк', 
+                url: 'autofleet%20PRO.html', 
+                icon: '🚐' 
+            },
+            moto: { 
+                name: 'Moto Manager', 
+                url: 'Moto%20Mahager%20V1.html', 
+                icon: '🏍️' 
+            }
         };
 
         // State
@@ -882,7 +940,27 @@ html_content = '''<!DOCTYPE html>
 
             // Check for notifications
             checkNotifications();
+
+            // Check if iframe loaded successfully
+            checkIframeLoaded();
         });
+
+        // Check iframe loaded
+        function checkIframeLoaded() {
+            const iframe = document.getElementById('frame');
+            iframe.onerror = () => {
+                showError('Модулът не може да бъде зареден. Проверете дали файловете са качени правилно.');
+            };
+        }
+
+        function showError(text) {
+            document.getElementById('errorText').textContent = text;
+            document.getElementById('errorMessage').classList.add('show');
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').classList.remove('show');
+        }
 
         // Menu toggle
         function toggleMenu() {
@@ -893,12 +971,30 @@ html_content = '''<!DOCTYPE html>
         // Load module
         function loadModule(moduleId, element) {
             const module = MODULES[moduleId];
-            if (!module) return;
+            if (!module) {
+                showError('Неизвестен модул: ' + moduleId);
+                return;
+            }
 
             currentModule = moduleId;
             
+            // Show loading
+            document.getElementById('loadingScreen').classList.remove('hidden');
+            
             // Update iframe
-            document.getElementById('frame').src = module.url;
+            const iframe = document.getElementById('frame');
+            iframe.src = module.url;
+            
+            // Check if loaded
+            iframe.onload = () => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            };
+            
+            iframe.onerror = () => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                showError('Грешка при зареждане на ' + module.name + '. Файлът не е намерен: ' + module.url);
+            };
+            
             document.getElementById('currentModule').textContent = module.name;
             
             // Update active state
@@ -916,42 +1012,51 @@ html_content = '''<!DOCTYPE html>
 
             // Save last module
             localStorage.setItem('az33_last_module', moduleId);
+            
+            // Hide loading after timeout
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 2000);
         }
 
         // Update all statistics
         function updateAllStats() {
-            // Get data from all modules
-            const orders = JSON.parse(localStorage.getItem('az_cart')) || [];
-            const orderHistory = JSON.parse(localStorage.getItem('az_history')) || [];
-            const inventory = JSON.parse(localStorage.getItem('ave_pro_inv_v11_2')) || [];
-            const packingOrders = JSON.parse(localStorage.getItem('az33_history')) || [];
-            const batteries = JSON.parse(localStorage.getItem('batteries')) || [];
+            try {
+                // Get data from all modules
+                const orders = JSON.parse(localStorage.getItem('az_cart')) || [];
+                const orderHistory = JSON.parse(localStorage.getItem('az_history')) || [];
+                const inventory = JSON.parse(localStorage.getItem('ave_pro_inv_v11_2')) || [];
+                const packingOrders = JSON.parse(localStorage.getItem('az33_history')) || [];
+                const batteries = JSON.parse(localStorage.getItem('batteries')) || [];
 
-            // Calculate values
-            const inventoryValue = inventory.reduce((sum, item) => {
-                return sum + ((item.ps || 0) * ((item.w || 0) + (item.m1 || 0) + (item.m2 || 0)));
-            }, 0);
+                // Calculate values
+                const inventoryValue = inventory.reduce((sum, item) => {
+                    return sum + ((item.ps || 0) * ((item.w || 0) + (item.m1 || 0) + (item.m2 || 0)));
+                }, 0);
 
-            const totalPallets = packingOrders.reduce((sum, order) => {
-                return sum + (order.pallets ? order.pallets.length : 0);
-            }, 0);
+                const totalPallets = packingOrders.reduce((sum, order) => {
+                    return sum + (order.pallets ? order.pallets.length : 0);
+                }, 0);
 
-            // Update sidebar stats
-            document.getElementById('statOrders').textContent = orders.length;
-            document.getElementById('statInventory').textContent = inventory.length;
-            document.getElementById('statPallets').textContent = totalPallets;
-            document.getElementById('statValue').textContent = '€' + (inventoryValue / 1000).toFixed(1) + 'k';
+                // Update sidebar stats
+                document.getElementById('statOrders').textContent = orders.length;
+                document.getElementById('statInventory').textContent = inventory.length;
+                document.getElementById('statPallets').textContent = totalPallets;
+                document.getElementById('statValue').textContent = '€' + (inventoryValue / 1000).toFixed(1) + 'k';
 
-            // Update dashboard stats
-            document.getElementById('dashOrders').textContent = orders.length;
-            document.getElementById('dashInventory').textContent = inventory.length;
-            document.getElementById('dashValue').textContent = '€' + inventoryValue.toLocaleString();
-            document.getElementById('dashPallets').textContent = totalPallets;
+                // Update dashboard stats
+                document.getElementById('dashOrders').textContent = orders.length;
+                document.getElementById('dashInventory').textContent = inventory.length;
+                document.getElementById('dashValue').textContent = '€' + inventoryValue.toLocaleString();
+                document.getElementById('dashPallets').textContent = totalPallets;
 
-            // Update badges
-            updateBadge('badgeOrder', orders.length);
-            updateBadge('badgeInventory', inventory.filter(i => (i.w || 0) < 5).length);
-            updateBadge('badgeBattery', batteries.length);
+                // Update badges
+                updateBadge('badgeOrder', orders.length);
+                updateBadge('badgeInventory', inventory.filter(i => (i.w || 0) < 5).length);
+                updateBadge('badgeBattery', batteries.length);
+            } catch (e) {
+                console.error('Error updating stats:', e);
+            }
         }
 
         function updateBadge(id, count) {
@@ -990,12 +1095,16 @@ html_content = '''<!DOCTYPE html>
         }
 
         function checkNotifications() {
-            // Check for low stock
-            const inventory = JSON.parse(localStorage.getItem('ave_pro_inv_v11_2')) || [];
-            const lowStock = inventory.filter(item => (item.w || 0) < 5);
-            
-            if (lowStock.length > 0) {
-                document.getElementById('notifDot').style.display = 'block';
+            try {
+                // Check for low stock
+                const inventory = JSON.parse(localStorage.getItem('ave_pro_inv_v11_2')) || [];
+                const lowStock = inventory.filter(item => (item.w || 0) < 5);
+                
+                if (lowStock.length > 0) {
+                    document.getElementById('notifDot').style.display = 'block';
+                }
+            } catch (e) {
+                console.error('Error checking notifications:', e);
             }
         }
 
@@ -1012,36 +1121,41 @@ html_content = '''<!DOCTYPE html>
             }
 
             const results = [];
-            const inventory = JSON.parse(localStorage.getItem('ave_pro_inv_v11_2')) || [];
-            const batteries = JSON.parse(localStorage.getItem('batteries')) || [];
+            
+            try {
+                const inventory = JSON.parse(localStorage.getItem('ave_pro_inv_v11_2')) || [];
+                const batteries = JSON.parse(localStorage.getItem('batteries')) || [];
 
-            // Search inventory
-            inventory.forEach(item => {
-                if ((item.name || '').toLowerCase().includes(query.toLowerCase()) ||
-                    (item.code || '').toLowerCase().includes(query.toLowerCase())) {
-                    results.push({
-                        type: 'inventory',
-                        icon: '📦',
-                        title: item.name,
-                        subtitle: `Код: ${item.code} | Наличност: ${(item.w || 0) + (item.m1 || 0) + (item.m2 || 0)} бр.`,
-                        action: () => loadModule('inventory', null)
-                    });
-                }
-            });
+                // Search inventory
+                inventory.forEach(item => {
+                    if ((item.name || '').toLowerCase().includes(query.toLowerCase()) ||
+                        (item.code || '').toLowerCase().includes(query.toLowerCase())) {
+                        results.push({
+                            type: 'inventory',
+                            icon: '📦',
+                            title: item.name,
+                            subtitle: `Код: ${item.code} | Наличност: ${(item.w || 0) + (item.m1 || 0) + (item.m2 || 0)} бр.`,
+                            action: () => loadModule('inventory', null)
+                        });
+                    }
+                });
 
-            // Search batteries
-            batteries.forEach(item => {
-                if ((item.model || '').toLowerCase().includes(query.toLowerCase()) ||
-                    (item.code || '').toLowerCase().includes(query.toLowerCase())) {
-                    results.push({
-                        type: 'battery',
-                        icon: '🔋',
-                        title: `${item.manufacturer} ${item.model}`,
-                        subtitle: `Цена: €${item.price} | ${item.supplier}`,
-                        action: () => loadModule('battery', null)
-                    });
-                }
-            });
+                // Search batteries
+                batteries.forEach(item => {
+                    if ((item.model || '').toLowerCase().includes(query.toLowerCase()) ||
+                        (item.code || '').toLowerCase().includes(query.toLowerCase())) {
+                        results.push({
+                            type: 'battery',
+                            icon: '🔋',
+                            title: `${item.manufacturer} ${item.model}`,
+                            subtitle: `Цена: €${item.price} | ${item.supplier}`,
+                            action: () => loadModule('battery', null)
+                        });
+                    }
+                });
+            } catch (e) {
+                console.error('Search error:', e);
+            }
 
             // Display results
             const container = document.getElementById('searchResults');
@@ -1077,16 +1191,16 @@ html_content = '''<!DOCTYPE html>
         function quickAction(action) {
             switch(action) {
                 case 'newOrder':
-                    loadModule('order', document.querySelector('[onclick*="order"]'));
+                    loadModule('order', document.querySelector('[onclick*=\"order\"]'));
                     break;
                 case 'printLabel':
-                    loadModule('packing', document.querySelector('[onclick*="packing"]'));
+                    loadModule('packing', document.querySelector('[onclick*=\"packing\"]'));
                     break;
                 case 'checkInventory':
-                    loadModule('inventory', document.querySelector('[onclick*="inventory"]'));
+                    loadModule('inventory', document.querySelector('[onclick*=\"inventory\"]'));
                     break;
                 case 'comparePrices':
-                    loadModule('battery', document.querySelector('[onclick*="battery"]'));
+                    loadModule('battery', document.querySelector('[onclick*=\"battery\"]'));
                     break;
                 case 'sync':
                     showNotification('Синхронизация', 'Данните са синхронизирани успешно', 'success');
@@ -1105,7 +1219,8 @@ html_content = '''<!DOCTYPE html>
 
         // Refresh current module
         function refreshCurrent() {
-            document.getElementById('frame').contentWindow.location.reload();
+            const iframe = document.getElementById('frame');
+            iframe.src = iframe.src;
             showNotification('Обновяване', 'Модулът е обновен', 'info');
         }
 
@@ -1127,15 +1242,6 @@ html_content = '''<!DOCTYPE html>
             document.getElementById('notifDot').style.display = 'block';
         }
 
-        // Handle messages from iframes
-        window.addEventListener('message', (e) => {
-            if (e.data.type === 'NOTIFICATION') {
-                showNotification(e.data.title, e.data.message, e.data.notificationType);
-            } else if (e.data.type === 'UPDATE_STATS') {
-                updateAllStats();
-            }
-        });
-
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             // Ctrl/Cmd + K for search
@@ -1148,6 +1254,7 @@ html_content = '''<!DOCTYPE html>
                 document.getElementById('dashboardOverlay').classList.remove('active');
                 document.getElementById('notificationsPanel').classList.remove('active');
                 document.getElementById('searchResults').classList.remove('active');
+                hideError();
             }
         });
 
@@ -1163,8 +1270,13 @@ html_content = '''<!DOCTYPE html>
 </html>'''
 
 # Save the file
-with open('/mnt/kimi/output/AZ33_HUB_PRO_v2.html', 'w', encoding='utf-8') as f:
+with open('/mnt/kimi/output/index.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
 
-print("✅ AZ33_HUB_PRO_v2.html е създаден успешно!")
+print("✅ index.html (HUB PRO v2.1) е създаден успешно!")
 print(f"📊 Размер: {len(html_content):,} bytes")
+print("\n🔧 ПРОМЕНИ:")
+print("- Имената на файловете са с %20 вместо интервали")
+print("- Добавена е обработка на грешки")
+print("- Проверка дали iframe се зарежда")
+print("- Loading screen при смяна на модули")
