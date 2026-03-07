@@ -1,0 +1,2525 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autozone 33 Pro - Пълна Работна Версия</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2a5298;
+            --primary-dark: #1e3c72;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .main-header {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .main-header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+        }
+
+        .company-bar {
+            background: rgba(255,255,255,0.15);
+            padding: 12px 25px;
+            border-radius: 50px;
+            display: inline-flex;
+            gap: 30px;
+            font-size: 14px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.1);
+            padding: 5px;
+            border-radius: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: transparent;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            transition: all 0.3s;
+        }
+
+        .tab:hover, .tab.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #e9ecef;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 5px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary { background: var(--primary); }
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .btn-warning { background: var(--warning); color: #000; }
+        .btn-info { background: var(--info); }
+        .btn-secondary { background: #6c757d; }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #555;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .drop-zone {
+            border: 3px dashed #cbd5e0;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: var(--success);
+            background: #e8f5e9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            padding-left: 45px;
+            font-size: 16px;
+            height: 55px;
+        }
+
+        .search-box::before {
+            content: "🔍";
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+        }
+
+        .search-results {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 0 0 12px 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            position: absolute;
+            width: 100%;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .search-results.show {
+            display: block;
+        }
+
+        .search-item {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-item:hover {
+            background: #e3f2fd;
+        }
+
+        .qty-stepper {
+            display: inline-flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-left: 10px;
+        }
+
+        .qty-stepper button {
+            background: none;
+            border: none;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        .qty-stepper input {
+            width: 50px;
+            text-align: center;
+            border: none;
+            background: none;
+            font-weight: 600;
+        }
+
+        .pallet-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1000px) {
+            .pallet-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pool-panel {
+            background: #f8f9fa;
+            border: 2px dashed #adb5bd;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .product-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .product-card:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .product-qty-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--danger);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .quick-assign {
+            background: #fff3cd;
+            border: 2px solid var(--warning);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .quick-assign.show {
+            display: block;
+        }
+
+        .pallet-card {
+            background: white;
+            border: 3px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .pallet-card.full {
+            border-color: var(--danger);
+            background: #fff5f5;
+        }
+
+        .capacity-bar {
+            width: 150px;
+            height: 12px;
+            background: #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        .capacity-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success) 0%, var(--warning) 70%, var(--danger) 100%);
+            border-radius: 6px;
+            transition: width 0.3s;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border-left: 4px solid var(--success);
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .print-preview {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .print-preview.show {
+            display: block;
+        }
+
+        .history-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .history-item:hover {
+            border-color: var(--primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #adb5bd;
+        }
+
+        .badge {
+            background: var(--danger);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .action-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .action-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .pallet-card.overload {
+            border-color: var(--warning);
+            background: #fffbeb;
+        }
+
+        .overload-badge {
+            background: var(--warning);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; padding: 0; }
+            .print-page { page-break-after: always; }
+            .print-page:last-child { page-break-after: auto; }
+        }
+
+        .print-only { display: none; }
+
+        .pallet-label {
+            border: 3px solid #2a5298;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            background: white;
+        }
+
+        .pallet-label-header {
+            text-align: center;
+            border-bottom: 3px solid #2a5298;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .pallet-number-big {
+            font-size: 72px;
+            font-weight: 900;
+            color: #2a5298;
+            line-height: 1;
+        }
+
+        .pallet-of-total {
+            font-size: 24px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .print-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 5px;
+            border-radius: 12px;
+        }
+
+        .print-tab {
+            background: transparent;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .print-tab:hover, .print-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .print-content-section {
+            display: none;
+        }
+
+        .print-content-section.active {
+            display: block;
+        }
+    
+        /* ============================================
+           СТИЛОВЕ ЗА ПЕЧАТ НА ПАКИНГ ЛИСТ (А4)
+           ============================================ */
+        @media print {
+            @page {
+                size: A4;
+                margin: 10mm;
+            }
+
+            body * {
+                visibility: hidden;
+            }
+
+            #packingListPrintArea, #packingListPrintArea * {
+                visibility: visible;
+            }
+
+            #packingListPrintArea {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+
+        /* ============================================
+           СТИЛОВЕ ЗА ПЕЧАТ НА ЕТИКЕТИ (10x15 см)
+           ============================================ */
+        @media print-label {
+            @page {
+                size: 100mm 150mm;
+                margin: 0;
+            }
+        }
+
+        .label-only-print {
+            display: none;
+        }
+
+        @media print {
+            body.printing-labels .no-print,
+            body.printing-labels .container,
+            body.printing-labels .section,
+            body.printing-labels .main-header,
+            body.printing-labels .tabs,
+            body.printing-labels #packingListPrintArea {
+                display: none !important;
+            }
+
+            body.printing-labels .label-only-print {
+                display: block !important;
+                visibility: visible !important;
+            }
+
+            body.printing-labels #labelPrintArea,
+            body.printing-labels #labelPrintArea * {
+                visibility: visible !important;
+            }
+        }
+
+        /* Стилове за пакинг лист */
+        .packing-a4 {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: white;
+            padding: 15mm;
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.4;
+            color: #000;
+        }
+
+        .packing-header {
+            text-align: center;
+            border-bottom: 3px solid #1e3c72;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .packing-header h1 {
+            font-size: 28pt;
+            color: #1e3c72;
+            margin: 0 0 10px 0;
+            letter-spacing: 3px;
+        }
+
+        .packing-company-info {
+            font-size: 10pt;
+            color: #333;
+        }
+
+        .packing-parties {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .party-box {
+            border: 2px solid #1e3c72;
+            border-radius: 8px;
+            padding: 12px;
+            background: #f8f9fa;
+        }
+
+        .party-box h3 {
+            background: #1e3c72;
+            color: white;
+            margin: -12px -12px 10px -12px;
+            padding: 8px 12px;
+            border-radius: 6px 6px 0 0;
+            font-size: 11pt;
+        }
+
+        .party-box p {
+            margin: 4px 0;
+            font-size: 10pt;
+        }
+
+        .packing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 10pt;
+        }
+
+        .packing-table th {
+            background: #1e3c72;
+            color: white;
+            padding: 10px 8px;
+            text-align: left;
+            border: 1px solid #1e3c72;
+        }
+
+        .packing-table td {
+            padding: 8px;
+            border: 1px solid #999;
+            vertical-align: top;
+        }
+
+        .packing-table tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        .packing-totals {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            text-align: right;
+            font-size: 12pt;
+            font-weight: bold;
+        }
+
+        .packing-signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            padding-top: 30px;
+        }
+
+        .signature-line {
+            width: 150px;
+            border-top: 1px solid #000;
+            margin-top: 30px;
+            padding-top: 5px;
+            text-align: center;
+            font-size: 9pt;
+        }
+
+        /* Стилове за етикети 10x15 */
+        .label-10x15 {
+            width: 100mm;
+            height: 150mm;
+            padding: 8mm;
+            border: 2px solid #000;
+            page-break-after: always;
+            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .label-10x15:last-child {
+            page-break-after: auto;
+        }
+
+        .label-header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5mm;
+            margin-bottom: 5mm;
+        }
+
+        .label-header h2 {
+            margin: 0;
+            font-size: 16pt;
+            color: #000;
+        }
+
+        .label-pallet-num {
+            font-size: 36pt;
+            font-weight: bold;
+            text-align: center;
+            margin: 8mm 0;
+            color: #1e3c72;
+        }
+
+        .label-info {
+            font-size: 10pt;
+            flex: 1;
+        }
+
+        .label-row {
+            margin-bottom: 3mm;
+            display: flex;
+        }
+
+        .label-label {
+            font-weight: bold;
+            width: 30mm;
+        }
+
+        .label-value {
+            flex: 1;
+        }
+
+        .label-barcode {
+            text-align: center;
+            font-family: monospace;
+            font-size: 14pt;
+            letter-spacing: 2px;
+            margin: 5mm 0;
+            padding: 3mm;
+            background: #f0f0f0;
+        }
+
+        .label-footer {
+            border-top: 1px solid #000;
+            padding-top: 3mm;
+            font-size: 8pt;
+            text-align: center;
+        }
+
+</style>
+<base target="_blank">
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="container">
+        <header class="main-header">
+            <h1>🔋 Autozone 33 Pro</h1>
+            <div class="company-bar">
+                <span>📍 Sofia, Munchen 14 str. wh.7</span>
+                <span>📧 office@avtozona33.com</span>
+                <span>📞 (+359) 2 479 45 45</span>
+            </div>
+        </header>
+
+        <!-- TABS -->
+        <nav class="tabs" id="mainTabs">
+            <button class="tab active" data-tab="dashboard">🏠 Начало</button>
+            <button class="tab" data-tab="products">📦 Продукти <span class="badge" id="productCount">0</span></button>
+            <button class="tab" data-tab="order">🛒 Поръчка <span class="badge" id="orderBadge" style="display:none">0</span></button>
+            <button class="tab" data-tab="pallets">📦 Палети</button>
+            <button class="tab" data-tab="history">📋 История</button>
+        </nav>
+
+        <!-- DASHBOARD -->
+        <section id="dashboard" class="section active">
+            <h2>🏠 Бърз Достъп</h2>
+            
+            <div class="action-grid">
+                <div class="action-card" onclick="switchTab('order')">
+                    <div class="action-icon">🛒</div>
+                    <h3>Нова Поръчка</h3>
+                    <p>Започни нова поръчка</p>
+                </div>
+                <div class="action-card" onclick="switchTab('products')">
+                    <div class="action-icon">📥</div>
+                    <h3>Импорт Продукти</h3>
+                    <p>Качи база данни</p>
+                </div>
+                <div class="action-card" onclick="continueLastOrder()">
+                    <div class="action-icon">⏮️</div>
+                    <h3>Продължи Последната</h3>
+                    <p>Възстанови незавършена</p>
+                </div>
+                <div class="action-card" onclick="switchTab('history')">
+                    <div class="action-icon">📋</div>
+                    <h3>История</h3>
+                    <p>Виж всички поръчки</p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-number" id="statOrders">0</div>
+                    <div>Поръчки Днес</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="statBatteries">0</div>
+                    <div>Акумулатори</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="statWeight">0</div>
+                    <div>Тегло (кг)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="statPallets">0</div>
+                    <div>Палети</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRODUCTS -->
+        <section id="products" class="section">
+            <h2>📦 Продукти</h2>
+            
+            <div style="margin-bottom: 20px;">
+                <button class="btn btn-success" onclick="exportProducts()">📤 Експорт</button>
+                <button class="btn btn-danger" onclick="clearAllProducts()">🗑️ Изчисти Всички</button>
+            </div>
+
+            <div class="card">
+                <h3>📥 Импорт</h3>
+                <div class="drop-zone" id="dropZone">
+                    <div style="font-size: 48px; margin-bottom: 10px;">📁</div>
+                    <p>Провлачи CSV файл тук или кликни за избор</p>
+                    <input type="file" id="fileInput" style="display: none;" accept=".csv,.txt" onchange="handleFile(this.files[0])">
+                </div>
+                
+                <p style="margin: 10px 0;">Или пейстни от Excel:</p>
+                <textarea id="pasteArea" rows="5" placeholder="Производител [TAB] Модел [TAB] Тегло [TAB] Код"></textarea>
+                <div style="margin-top: 10px;">
+                    <button class="btn btn-success" onclick="importFromPaste()">📥 Импортирай</button>
+                    <button class="btn btn-info" onclick="loadDemoData()">📋 Демо Данни</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('pasteArea').value=''">Изчисти</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>➕ Добави Нов</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Производител</label>
+                        <input type="text" id="newMfg" placeholder="Varta">
+                    </div>
+                    <div class="form-group">
+                        <label>Модел</label>
+                        <input type="text" id="newModel" placeholder="Blue Dynamic 60Ah">
+                    </div>
+                    <div class="form-group">
+                        <label>Тегло</label>
+                        <input type="number" id="newWeight" placeholder="15.2" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Митн. Код</label>
+                        <input type="text" id="newCode" placeholder="8507 10 20">
+                    </div>
+                </div>
+                <button class="btn btn-success" onclick="addSingleProduct()">➕ Добави</button>
+            </div>
+
+            <table id="productsTable">
+                <thead>
+                    <tr>
+                        <th>Производител</th>
+                        <th>Модел</th>
+                        <th>Тегло</th>
+                        <th>Код</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="productsBody"></tbody>
+            </table>
+        </section>
+
+        <!-- ORDER -->
+        <section id="order" class="section">
+            <h2>🛒 Нова Поръчка</h2>
+            
+            <!-- RECIPIENT INFO -->
+            <div class="card">
+                <h3>📋 Информация за Пратката</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Получател *</label>
+                        <input type="text" id="recipientName" placeholder="Име на фирма/лице">
+                    </div>
+                    <div class="form-group">
+                        <label>Адрес на доставка</label>
+                        <input type="text" id="deliveryAddress" placeholder="Град, улица, номер">
+                    </div>
+                    <div class="form-group">
+                        <label>Телефон</label>
+                        <input type="text" id="recipientPhone" placeholder="+359 ...">
+                    </div>
+                    <div class="form-group">
+                        <label>Референтен номер</label>
+                        <input type="text" id="referenceNumber" placeholder="№ на поръчка/фактура">
+                    </div>
+                </div>
+
+                <!-- ПРЕВОЗВАЧ -->
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e9ecef;">
+                    <h4>🚚 Информация за Превозвача</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Име на превозвач</label>
+                            <input type="text" id="carrierName" placeholder="Еконт Експрес, Спиди, etc.">
+                        </div>
+                        <div class="form-group">
+                            <label>Адрес/Терминал</label>
+                            <input type="text" id="carrierAddress" placeholder="товарен терминал София">
+                        </div>
+                        <div class="form-group">
+                            <label>Телефон на превозвач</label>
+                            <input type="text" id="carrierPhone" placeholder="0700 1 70 70">
+                        </div>
+                        <div class="form-group">
+                            <label>№ на товарителница</label>
+                            <input type="text" id="carrierAWB" placeholder="AWB номер">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <button class="btn btn-danger" onclick="clearCurrentOrder()">🗑️ Нова Поръчка</button>
+                <button class="btn btn-success" onclick="saveAndProceed()">✅ Запази и Продължи →</button>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="orderSearch" placeholder="Търси продукт..." autocomplete="off">
+                <div class="search-results" id="orderSearchResults"></div>
+            </div>
+
+            <div class="card">
+                <h3>📋 Текуща Поръчка</h3>
+                <table id="orderTable">
+                    <thead>
+                        <tr>
+                            <th>Производител</th>
+                            <th>Модел</th>
+                            <th>Брой</th>
+                            <th>Тегло</th>
+                            <th>Общо</th>
+                            <th>Код</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderBody">
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <div style="font-size: 48px;">🛒</div>
+                                <p>Добави продукти от търсачката</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div style="background: var(--primary); color: white; padding: 20px; border-radius: 10px; margin-top: 20px; text-align: center;">
+                    <span style="font-size: 24px; font-weight: bold;" id="orderTotalQty">0</span> бр. | 
+                    <span style="font-size: 24px; font-weight: bold;" id="orderTotalWeight">0.00</span> кг
+                </div>
+            </div>
+        </section>
+
+        <!-- PALLETS -->
+        <section id="pallets" class="section">
+            <h2>📦 Палетиране</h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Макс. тегло на палет (кг)</label>
+                    <input type="number" id="palletCapacity" value="1000" min="1" step="10">
+                </div>
+                <div class="form-group">
+                    <label>Тегло на палет (кг)</label>
+                    <input type="number" id="palletTare" value="25" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Брой палети</label>
+                    <input type="number" id="palletCount" value="2" min="1" max="20">
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" onclick="createPallets()" style="width: 100%;">🚀 Създай Палети</button>
+                </div>
+            </div>
+
+            <div id="palletWorkspace" style="display: none;">
+                <div style="margin-bottom: 15px;">
+                    <button class="btn btn-warning" onclick="autoDistribute()">🤖 Авто-Разпределяне</button>
+                    <button class="btn btn-info" onclick="addNewPallet()">➕ Добави Палет</button>
+                    <button class="btn btn-success" onclick="finishOrder()">✅ Готово - Печат</button>
+                    <button class="btn btn-primary" onclick="printPackingListOnly()">📋 Печат Packing List (А4)</button>
+                    <button class="btn btn-secondary" onclick="printLabelsOnly()">🏷️ Печат Етикети (10x15)</button>
+                </div>
+
+                <div class="pallet-grid">
+                    <div class="pool-panel">
+                        <h3>📦 За Разпределяне: <span id="poolCount">0</span> бр.</h3>
+                        <div id="productPool"></div>
+                    </div>
+                    <div id="palletContainer"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HISTORY -->
+        <section id="history" class="section">
+            <h2>📋 История</h2>
+            <button class="btn btn-danger" onclick="clearHistory()">🗑️ Изчисти История</button>
+            <div id="historyList" style="margin-top: 20px;"></div>
+        </section>
+
+        <!-- PRINT -->
+        <div class="print-preview" id="printSection">
+            <div style="margin-bottom: 20px;" class="no-print">
+                <div class="print-tabs">
+                    <button class="print-tab active" onclick="switchPrintTab('all', event)">📋 Общ Packing List</button>
+                    <button class="print-tab" onclick="switchPrintTab('labels', event)">🏷️ Етикети по Палети</button>
+                    <button class="print-tab" onclick="switchPrintTab('manifests', event)">📄 Товарителници</button>
+                </div>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Печат</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('printSection').classList.remove('show')">Затвори</button>
+            </div>
+            <div id="printContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // STATE
+        let products = JSON.parse(localStorage.getItem('az33_products')) || [];
+        let currentOrder = JSON.parse(localStorage.getItem('az33_currentOrder')) || [];
+        let orderHistory = JSON.parse(localStorage.getItem('az33_history')) || [];
+        let pallets = [];
+        let unassigned = [];
+        let currentPrintTab = 'all';
+
+        // INIT
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+
+            // Auto-save
+            setInterval(() => {
+                if (currentOrder.length > 0) {
+                    localStorage.setItem('az33_currentOrder', JSON.stringify(currentOrder));
+                }
+            }, 30000);
+
+            // Search handlers
+            document.getElementById('orderSearch').addEventListener('input', searchForOrder);
+            
+            // Drag and drop
+            setupDragDrop();
+
+            // Initial render
+            updateAll();
+        });
+
+        function updateAll() {
+            updateProductCount();
+            renderProducts();
+            renderOrder();
+            renderHistory();
+            updateStats();
+        }
+
+        function saveProducts() {
+            localStorage.setItem('az33_products', JSON.stringify(products));
+            updateProductCount();
+        }
+
+        function saveOrder() {
+            localStorage.setItem('az33_currentOrder', JSON.stringify(currentOrder));
+        }
+
+        function saveHistory() {
+            localStorage.setItem('az33_history', JSON.stringify(orderHistory));
+        }
+
+        // TABS
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+            
+            if (tabId === 'products') renderProducts();
+            if (tabId === 'order') renderOrder();
+            if (tabId === 'history') renderHistory();
+        }
+
+        // TOAST
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = type === 'error' ? 'var(--danger)' : (type === 'warning' ? 'var(--warning)' : 'var(--success)');
+            toast.innerHTML = `<span style="font-size: 20px;">${type === 'error' ? '❌' : (type === 'warning' ? '⚠️' : '✅')}</span> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        // STATS
+        function updateStats() {
+            const today = new Date().toDateString();
+            const todayOrders = orderHistory.filter(h => new Date(h.date).toDateString() === today);
+            
+            document.getElementById('statOrders').textContent = todayOrders.length;
+            document.getElementById('statBatteries').textContent = todayOrders.reduce((s, h) => s + h.totalQty, 0);
+            document.getElementById('statWeight').textContent = todayOrders.reduce((s, h) => s + h.totalWeight, 0).toFixed(2);
+            document.getElementById('statPallets').textContent = todayOrders.reduce((s, h) => s + (h.pallets?.length || 0), 0);
+        }
+
+        function updateProductCount() {
+            document.getElementById('productCount').textContent = products.length;
+        }
+
+        function continueLastOrder() {
+            if (currentOrder.length === 0) {
+                showToast('Няма незавършена поръчка', 'warning');
+                return;
+            }
+            switchTab('order');
+            showToast('Продължаваш последната поръчка');
+        }
+
+        // PRODUCTS
+        function setupDragDrop() {
+            const dropZone = document.getElementById('dropZone');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => {
+                dropZone.addEventListener(e, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(e => {
+                dropZone.addEventListener(e, () => dropZone.classList.add('drag-over'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(e => {
+                dropZone.addEventListener(e, () => dropZone.classList.remove('drag-over'), false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length) handleFile(files[0]);
+            });
+
+            dropZone.addEventListener('click', () => {
+                document.getElementById('fileInput').click();
+            });
+        }
+
+        function handleFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => processImport(e.target.result);
+            reader.readAsText(file);
+        }
+
+        function importFromPaste() {
+            const text = document.getElementById('pasteArea').value;
+            if (!text.trim()) {
+                showToast('Няма данни', 'error');
+                return;
+            }
+            processImport(text);
+        }
+
+        function processImport(text) {
+            const lines = text.split('\n').filter(l => l.trim());
+            let imported = 0, dupes = 0;
+
+            lines.forEach(line => {
+                let parts = line.split('\t');
+                if (parts.length < 4) parts = line.split(/[|,;]/).map(p => p.trim());
+                
+                if (parts.length >= 4) {
+                    const [mfg, model, w, code] = parts;
+                    const weight = parseFloat(w?.toString().replace(',', '.'));
+                    
+                    if (mfg && model && weight > 0 && code) {
+                        const exists = products.some(p => 
+                            p.manufacturer.toLowerCase() === mfg.toLowerCase() && 
+                            p.model.toLowerCase() === model.toLowerCase()
+                        );
+                        
+                        if (!exists) {
+                            products.push({
+                                id: Date.now() + imported,
+                                manufacturer: mfg.trim(),
+                                model: model.trim(),
+                                weight: weight,
+                                customs: code.trim()
+                            });
+                            imported++;
+                        } else {
+                            dupes++;
+                        }
+                    }
+                }
+            });
+
+            saveProducts();
+            renderProducts();
+            document.getElementById('pasteArea').value = '';
+            showToast(`Импортирани ${imported}, пропуснати ${dupes} дубликата`);
+        }
+
+        function loadDemoData() {
+            const demo = [
+                ['Varta', 'Blue Dynamic 60Ah', '15.2', '8507 10 20'],
+                ['Varta', 'Silver Dynamic 74Ah', '18.5', '8507 10 20'],
+                ['Bosch', 'S4 005 60Ah', '14.8', '8507 10 20'],
+                ['Bosch', 'S5 013 100Ah', '24.3', '8507 10 20'],
+                ['Exide', 'Premium 70Ah', '17.1', '8507 10 80'],
+                ['Exide', 'Start-Stop AGM 80Ah', '21.4', '8507 10 80']
+            ];
+            
+            let added = 0;
+            demo.forEach(([m, mo, w, c]) => {
+                if (!products.some(p => p.model === mo)) {
+                    products.push({ id: Date.now() + added, manufacturer: m, model: mo, weight: parseFloat(w), customs: c });
+                    added++;
+                }
+            });
+            
+            saveProducts();
+            renderProducts();
+            showToast(`Добавени ${added} демо продукта`);
+        }
+
+        function addSingleProduct() {
+            const mfg = document.getElementById('newMfg').value.trim();
+            const model = document.getElementById('newModel').value.trim();
+            const weight = parseFloat(document.getElementById('newWeight').value);
+            const code = document.getElementById('newCode').value.trim();
+
+            if (!mfg || !model || !weight || !code) {
+                showToast('Попълни всички задължителни полета', 'error');
+                return;
+            }
+
+            if (products.some(p => p.model.toLowerCase() === model.toLowerCase())) {
+                showToast('Този модел съществува', 'error');
+                return;
+            }
+
+            products.push({ id: Date.now(), manufacturer: mfg, model: model, weight: weight, customs: code });
+            saveProducts();
+            renderProducts();
+            
+            document.getElementById('newMfg').value = '';
+            document.getElementById('newModel').value = '';
+            document.getElementById('newWeight').value = '';
+            document.getElementById('newCode').value = '';
+            
+            showToast('Продуктът е добавен');
+        }
+
+        function renderProducts() {
+            const tbody = document.getElementById('productsBody');
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #999;">Няма продукти</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = products.map(p => `
+                <tr>
+                    <td><strong>${escapeHtml(p.manufacturer)}</strong></td>
+                    <td>${escapeHtml(p.model)}</td>
+                    <td>${p.weight.toFixed(2)} кг</td>
+                    <td>${escapeHtml(p.customs)}</td>
+                    <td>
+                        <button class="btn btn-danger btn-small" onclick="deleteProduct(${p.id})">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteProduct(id) {
+            if (!confirm('Изтрий?')) return;
+            products = products.filter(p => p.id !== id);
+            saveProducts();
+            renderProducts();
+            showToast('Изтрито');
+        }
+
+        function exportProducts() {
+            if (products.length === 0) {
+                showToast('Няма какво да експортираш', 'error');
+                return;
+            }
+            const csv = products.map(p => `${p.manufacturer}\t${p.model}\t${p.weight}\t${p.customs}`).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Products_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            showToast('Експортирано');
+        }
+
+        function clearAllProducts() {
+            if (!confirm('⚠️ Изтрий ВСИЧКИ продукти?')) return;
+            products = [];
+            saveProducts();
+            renderProducts();
+            showToast('Базата е изчистена');
+        }
+
+        // ORDER
+        function searchForOrder() {
+            const query = document.getElementById('orderSearch').value.toLowerCase();
+            const results = document.getElementById('orderSearchResults');
+            
+            if (query.length < 2) {
+                results.classList.remove('show');
+                return;
+            }
+
+            const matches = products.filter(p => 
+                p.manufacturer.toLowerCase().includes(query) ||
+                p.model.toLowerCase().includes(query)
+            );
+
+            results.innerHTML = matches.map(p => `
+                <div class="search-item" onclick="addToOrder(${p.id})">
+                    <div style="font-weight: 600;">${escapeHtml(p.manufacturer)} ${escapeHtml(p.model)}</div>
+                    <div style="font-size: 13px; color: #666;">${p.weight} кг | ${escapeHtml(p.customs)}</div>
+                    <div class="qty-stepper" onclick="event.stopPropagation()">
+                        <button onclick="changeQty(${p.id}, -1, event)">−</button>
+                        <input type="number" id="qty-${p.id}" value="1" min="1" onclick="event.stopPropagation()">
+                        <button onclick="changeQty(${p.id}, 1, event)">+</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            results.classList.add('show');
+        }
+
+        function changeQty(id, delta, event) {
+            if (event) event.stopPropagation();
+            const input = document.getElementById(`qty-${id}`);
+            if (input) {
+                input.value = Math.max(1, parseInt(input.value) + delta);
+            }
+        }
+
+        function addToOrder(id) {
+            const product = products.find(p => p.id === id);
+            const qtyInput = document.getElementById(`qty-${id}`);
+            const quantity = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
+            
+            const existing = currentOrder.find(i => i.id === id);
+            if (existing) {
+                existing.quantity += quantity;
+            } else {
+                currentOrder.push({ ...product, quantity: quantity });
+            }
+
+            saveOrder();
+            renderOrder();
+            document.getElementById('orderSearch').value = '';
+            document.getElementById('orderSearchResults').classList.remove('show');
+            showToast(`Добавени ${quantity} бр. ${product.manufacturer}`);
+        }
+
+        function renderOrder() {
+            const tbody = document.getElementById('orderBody');
+            const badge = document.getElementById('orderBadge');
+            
+            if (currentOrder.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div style="font-size: 48px;">🛒</div><p>Добави продукти</p></td></tr>';
+                badge.style.display = 'none';
+                updateOrderTotals();
+                return;
+            }
+
+            badge.textContent = currentOrder.length;
+            badge.style.display = 'inline';
+
+            tbody.innerHTML = currentOrder.map((item, idx) => `
+                <tr>
+                    <td><strong>${escapeHtml(item.manufacturer)}</strong></td>
+                    <td>${escapeHtml(item.model)}</td>
+                    <td>
+                        <div class="qty-stepper">
+                            <button onclick="updateOrderQty(${idx}, -1)">−</button>
+                            <input type="number" value="${item.quantity}" onchange="setOrderQty(${idx}, this.value)" style="width: 60px;">
+                            <button onclick="updateOrderQty(${idx}, 1)">+</button>
+                        </div>
+                    </td>
+                    <td>${item.weight.toFixed(2)} кг</td>
+                    <td><strong>${(item.weight * item.quantity).toFixed(2)} кг</strong></td>
+                    <td>${escapeHtml(item.customs)}</td>
+                    <td><button class="btn btn-danger btn-small" onclick="removeFromOrder(${idx})">🗑️</button></td>
+                </tr>
+            `).join('');
+
+            updateOrderTotals();
+        }
+
+        function updateOrderQty(idx, delta) {
+            currentOrder[idx].quantity = Math.max(1, currentOrder[idx].quantity + delta);
+            saveOrder();
+            renderOrder();
+        }
+
+        function setOrderQty(idx, val) {
+            currentOrder[idx].quantity = Math.max(1, parseInt(val) || 1);
+            saveOrder();
+            renderOrder();
+        }
+
+        function removeFromOrder(idx) {
+            currentOrder.splice(idx, 1);
+            saveOrder();
+            renderOrder();
+            showToast('Премахнато');
+        }
+
+        function updateOrderTotals() {
+            const qty = currentOrder.reduce((s, i) => s + i.quantity, 0);
+            const weight = currentOrder.reduce((s, i) => s + (i.weight * i.quantity), 0);
+            document.getElementById('orderTotalQty').textContent = qty;
+            document.getElementById('orderTotalWeight').textContent = weight.toFixed(2);
+        }
+
+        function clearCurrentOrder() {
+            if (currentOrder.length === 0) return;
+            if (!confirm('Нова поръчка?')) return;
+            currentOrder = [];
+            saveOrder();
+            renderOrder();
+            
+            // Clear recipient info
+            document.getElementById('recipientName').value = '';
+            document.getElementById('deliveryAddress').value = '';
+            document.getElementById('recipientPhone').value = '';
+            document.getElementById('referenceNumber').value = '';
+            
+            showToast('Нова поръчка');
+        }
+
+        function saveAndProceed() {
+            if (currentOrder.length === 0) {
+                showToast('Добави продукти първо', 'error');
+                return;
+            }
+
+            const recipientName = document.getElementById('recipientName').value.trim();
+            if (!recipientName) {
+                showToast('Моля, въведете получател', 'error');
+                document.getElementById('recipientName').focus();
+                return;
+            }
+
+            const record = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                items: [...currentOrder],
+                totalQty: currentOrder.reduce((s, i) => s + i.quantity, 0),
+                totalWeight: currentOrder.reduce((s, i) => s + (i.weight * i.quantity), 0),
+                recipient: {
+                    name: recipientName,
+                    address: document.getElementById('deliveryAddress').value.trim(),
+                    phone: document.getElementById('recipientPhone').value.trim(),
+                    reference: document.getElementById('referenceNumber').value.trim()
+                },
+                pallets: []
+            };
+
+            orderHistory.unshift(record);
+            saveHistory();
+
+            unassigned = currentOrder.map(i => ({...i}));
+            switchTab('pallets');
+            createPallets();
+            showToast('Запазено! Продължи с палетирането');
+        }
+
+        // PALLETS
+        const PALLET_WEIGHT_LIMIT = 1000;
+
+        function createPallets() {
+            const count = parseInt(document.getElementById('palletCount').value) || 2;
+            const capacity = parseFloat(document.getElementById('palletCapacity').value) || 1000;
+
+            pallets = [];
+            for (let i = 1; i <= count; i++) {
+                pallets.push({ number: i, items: [], totalQty: 0, totalWeight: 0, capacity });
+            }
+
+            document.getElementById('palletWorkspace').style.display = 'block';
+            renderPallets();
+        }
+
+        function renderPallets() {
+            const poolDiv = document.getElementById('productPool');
+            const totalUnassigned = unassigned.reduce((s, i) => s + i.quantity, 0);
+            document.getElementById('poolCount').textContent = totalUnassigned;
+
+            if (unassigned.length === 0) {
+                poolDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--success);"><div style="font-size: 48px;">✅</div><h3>Всичко разпределено!</h3></div>';
+            } else {
+                poolDiv.innerHTML = unassigned.map((item, idx) => `
+                    <div class="product-card" id="pool-item-${idx}">
+                        <span class="product-qty-badge">${item.quantity}</span>
+                        <div style="font-weight: 700;">${escapeHtml(item.manufacturer)} ${escapeHtml(item.model)}</div>
+                        <div style="font-size: 13px; color: #666;">${item.weight} кг/бр | ${escapeHtml(item.customs)}</div>
+                        
+                        <div class="quick-assign" id="quick-${idx}">
+                            <label style="font-size: 12px;">Колко бр. за кой палет?</label>
+                            <div style="display: flex; gap: 8px; margin-top: 5px; flex-wrap: wrap;">
+                                <input type="number" id="assign-qty-${idx}" value="${Math.min(item.quantity, item.quantity)}" max="${item.quantity}" style="width: 70px;">
+                                <select id="assign-pallet-${idx}" style="flex: 1; min-width: 100px;">
+                                    ${pallets.map(p => `<option value="${p.number}">Палет #${p.number} (${p.totalWeight.toFixed(0)} кг)</option>`).join('')}
+                                </select>
+                                <button class="btn btn-success btn-small" onclick="doAssign(${idx})">OK</button>
+                                <button class="btn btn-secondary btn-small" onclick="hideAssign(${idx})">X</button>
+                            </div>
+                            <div style="margin-top: 5px; font-size: 12px;">Оставащи: <strong id="rem-${idx}">${item.quantity}</strong> бр.</div>
+                        </div>
+                    </div>
+                `).join('');
+
+                unassigned.forEach((_, idx) => {
+                    const element = document.getElementById(`pool-item-${idx}`);
+                    if (element) {
+                        element.addEventListener('click', function(e) {
+                            if (!e.target.closest('.quick-assign')) {
+                                showAssign(idx);
+                            }
+                        });
+                    }
+                });
+            }
+
+            const container = document.getElementById('palletContainer');
+            container.innerHTML = pallets.map((p, idx) => {
+                const isOverloaded = p.totalWeight > PALLET_WEIGHT_LIMIT;
+                const totalPallets = pallets.length;
+                
+                return `
+                    <div class="pallet-card ${isOverloaded ? 'overload' : ''}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <div>
+                                <div style="font-size: 20px; font-weight: 800; color: var(--primary);">📦 Палет #${p.number} <span style="color: #666; font-size: 16px;">от ${totalPallets}</span>
+                                    ${isOverloaded ? '<span class="overload-badge">⚠️ ПРЕТОВАРЕН</span>' : ''}
+                                </div>
+                                <div style="font-size: 13px; color: #666;">${p.totalQty} бр. | ${p.totalWeight.toFixed(2)} кг</div>
+                            </div>
+                            <div>
+                                <button class="btn btn-danger btn-small" onclick="clearPallet(${idx})">🗑️</button>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            ${p.items.length === 0 ? 
+                                '<div style="width: 100%; text-align: center; padding: 20px; color: #999;">Празен палет</div>' :
+                                p.items.map((it, iidx) => `
+                                    <div style="background: #e3f2fd; border: 1px solid var(--info); border-radius: 8px; padding: 8px 12px; font-size: 13px;">
+                                        <strong>${escapeHtml(it.manufacturer)}</strong> ${it.quantity} бр. (${(it.weight * it.quantity).toFixed(1)} кг)
+                                        <button onclick="removeFromPallet(${idx}, ${iidx})" style="background: var(--danger); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; margin-left: 5px;">×</button>
+                                    </div>
+                                `).join('')
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showAssign(idx) {
+            document.querySelectorAll('.quick-assign').forEach(el => el.classList.remove('show'));
+            const quick = document.getElementById(`quick-${idx}`);
+            if (quick) quick.classList.add('show');
+        }
+
+        function hideAssign(idx) {
+            const quick = document.getElementById(`quick-${idx}`);
+            if (quick) quick.classList.remove('show');
+        }
+
+        function doAssign(idx) {
+            const item = unassigned[idx];
+            const qtyInput = document.getElementById(`assign-qty-${idx}`);
+            const palletSelect = document.getElementById(`assign-pallet-${idx}`);
+            
+            if (!qtyInput || !palletSelect) return;
+            
+            const qty = parseInt(qtyInput.value) || 0;
+            const palletNum = parseInt(palletSelect.value);
+
+            if (qty < 1 || qty > item.quantity) {
+                showToast('Невалидно количество', 'error');
+                return;
+            }
+
+            const pallet = pallets.find(p => p.number === palletNum);
+            const addedWeight = item.weight * qty;
+            const newTotalWeight = pallet.totalWeight + addedWeight;
+
+            if (newTotalWeight > PALLET_WEIGHT_LIMIT && pallet.totalWeight <= PALLET_WEIGHT_LIMIT) {
+                showToast(`⚠️ Палет #${palletNum} вече е претоварен (${newTotalWeight.toFixed(2)} кг > ${PALLET_WEIGHT_LIMIT} кг препоръчително)`, 'warning');
+            }
+
+            const existing = pallet.items.find(i => i.id === item.id);
+            if (existing) {
+                existing.quantity += qty;
+            } else {
+                pallet.items.push({ ...item, quantity: qty });
+            }
+            pallet.totalQty += qty;
+            pallet.totalWeight += addedWeight;
+
+            item.quantity -= qty;
+            if (item.quantity === 0) {
+                unassigned.splice(idx, 1);
+            }
+
+            renderPallets();
+            showToast(`Добавени ${qty} бр. (${addedWeight.toFixed(2)} кг) в Палет #${palletNum}`);
+        }
+
+        function addNewPallet() {
+            const capacity = parseFloat(document.getElementById('palletCapacity').value) || 1000;
+            const newNumber = pallets.length > 0 ? Math.max(...pallets.map(p => p.number)) + 1 : 1;
+            pallets.push({ number: newNumber, items: [], totalQty: 0, totalWeight: 0, capacity });
+            renderPallets();
+            showToast(`Добавен Палет #${newNumber}`);
+        }
+
+        function removeFromPallet(pidx, iidx) {
+            const item = pallets[pidx].items[iidx];
+            
+            const inPool = unassigned.find(u => u.id === item.id);
+            if (inPool) {
+                inPool.quantity += item.quantity;
+            } else {
+                unassigned.push({ ...item });
+            }
+
+            pallets[pidx].totalQty -= item.quantity;
+            pallets[pidx].totalWeight -= item.weight * item.quantity;
+            pallets[pidx].items.splice(iidx, 1);
+
+            renderPallets();
+            showToast('Върнато в списъка');
+        }
+
+        function clearPallet(idx) {
+            if (!confirm('Изчисти палета?')) return;
+            
+            pallets[idx].items.forEach(item => {
+                const inPool = unassigned.find(u => u.id === item.id);
+                if (inPool) {
+                    inPool.quantity += item.quantity;
+                } else {
+                    unassigned.push({ ...item });
+                }
+            });
+
+            pallets[idx].items = [];
+            pallets[idx].totalQty = 0;
+            pallets[idx].totalWeight = 0;
+
+            renderPallets();
+            showToast('Палетът е изчистен');
+        }
+
+        function autoDistribute() {
+            if (unassigned.length === 0) {
+                showToast('Няма какво да разпределям', 'warning');
+                return;
+            }
+
+            pallets.sort((a, b) => a.totalWeight - b.totalWeight);
+
+            unassigned.forEach(item => {
+                let remaining = item.quantity;
+                
+                while (remaining > 0) {
+                    pallets.sort((a, b) => a.totalWeight - b.totalWeight);
+                    const lightestPallet = pallets[0];
+                    
+                    const existing = lightestPallet.items.find(i => i.id === item.id);
+                    
+                    if (existing) {
+                        existing.quantity += 1;
+                    } else {
+                        lightestPallet.items.push({ ...item, quantity: 1 });
+                    }
+                    
+                    lightestPallet.totalQty += 1;
+                    lightestPallet.totalWeight += item.weight;
+                    remaining -= 1;
+                }
+            });
+
+            unassigned = [];
+            pallets.sort((a, b) => a.number - b.number);
+
+            renderPallets();
+            
+            const overloadedPallets = pallets.filter(p => p.totalWeight > PALLET_WEIGHT_LIMIT);
+            if (overloadedPallets.length > 0) {
+                showToast(`⚠️ ${overloadedPallets.length} палет(а) са претоварени!`, 'warning');
+            } else {
+                showToast('Автоматично разпределяне завършено!');
+            }
+        }
+
+        // PRINT FUNCTIONS
+        function switchPrintTab(tab, event) {
+            currentPrintTab = tab;
+            document.querySelectorAll('.print-tab').forEach(t => t.classList.remove('active'));
+            if (event) event.target.classList.add('active');
+            generatePrintContent();
+        }
+
+        function generatePrintContent() {
+            const tare = parseFloat(document.getElementById('palletTare').value) || 25;
+            const date = new Date().toLocaleDateString('bg-BG');
+            const recipient = orderHistory[0]?.recipient || { 
+                name: 'Иван Панчовски', 
+                address: 'гр. София, ж.к. Младост 1, ул. 307, бл. 307А', 
+                phone: '0878 717 808', 
+                reference: '1000888888' 
+            };
+            
+            if (currentPrintTab === 'all') {
+                generatePackingList(tare, date, recipient);
+            } else if (currentPrintTab === 'labels') {
+                generatePalletLabels(tare, date, recipient);
+            } else if (currentPrintTab === 'manifests') {
+                generateManifests(tare, date, recipient);
+            }
+        }
+
+        // =================================================================
+        // КОРИГИРАН PACKING LIST - ТОЧНО КАКТО НА ИЗОБРАЖЕНИЕТО
+        // =================================================================
+        function generatePackingList(tare, date, recipient) {
+            let totalNet = 0, totalGross = 0, totalQty = 0;
+
+            let html = `
+                <div style="font-family: Arial; width: 100%; max-width: 210mm; margin: 0 auto; font-size: 11px; line-height: 1.3;">
+                    <!-- HEADER - точно като на изображението -->
+                    <div style="border-bottom: 3px solid #333; padding-bottom: 10px; margin-bottom: 20px;">
+                        <div style="font-size: 28px; font-weight: 800; color: #1e3c72; text-align: center; letter-spacing: 2px;">PACKING LIST</div>
+                        <div style="text-align: center; font-size: 14px; font-weight: bold;">
+                            AUTOZONE 33 Ltd<br>
+                            <span style="font-size: 12px; font-weight: normal;">Sofia, München 14 str. warehouse 7 | office@avtozona33.com | (+359) 2 479 45 45</span>
+                        </div>
+                        <div style="text-align: right; font-size: 12px; margin-top: 5px;">
+                            <strong>Дата:</strong> ${date}
+                        </div>
+                    </div>
+
+                    <!-- ТРИТЕ БЛОКА - ИЗПРАЩАЧ, ПОЛУЧАТЕЛ, ПРЕВОЗВАЧ -->
+                    <div style="display: flex; gap: 20px; margin-bottom: 25px;">
+                        <!-- ИЗПРАЩАЧ (Sender) -->
+                        <div style="flex: 1; border: 1px solid #aaa; padding: 12px 15px; border-radius: 10px; background: #f9f9f9;">
+                            <h4 style="background: #1e3c72; color: white; padding: 6px 10px; margin: -12px -15px 12px -15px; border-radius: 10px 10px 0 0; font-size: 15px;">📦 ИЗПРАЩАЧ (Sender)</h4>
+                            <p style="margin: 6px 0; font-size: 14px;"><strong>AutoZone 33 Ltd</strong></p>
+                            <p style="margin: 6px 0; font-size: 14px;">ул. Мюнхен 14, склад 7<br>София 1618, България</p>
+                            <p style="margin: 6px 0; font-size: 14px;">office@avtozona33.com<br>тел: 02 479 45 45</p>
+                        </div>
+                        
+                        <!-- ПОЛУЧАТЕЛ (Receiver) -->
+                        <div style="flex: 1; border: 1px solid #aaa; padding: 12px 15px; border-radius: 10px; background: #f9f9f9;">
+                            <h4 style="background: #1e3c72; color: white; padding: 6px 10px; margin: -12px -15px 12px -15px; border-radius: 10px 10px 0 0; font-size: 15px;">📦 ПОЛУЧАТЕЛ (Receiver)</h4>
+                            <p style="margin: 6px 0; font-size: 14px;"><strong>${escapeHtml(recipient.name)}</strong></p>
+                            <p style="margin: 6px 0; font-size: 14px;">${escapeHtml(recipient.address)}</p>
+                            <p style="margin: 6px 0; font-size: 14px;">📞 ${escapeHtml(recipient.phone)}</p>
+                            <p style="margin: 6px 0; font-size: 14px;">📧 ivan.panchovski@abv.bg</p>
+                            <p style="margin: 6px 0; font-size: 14px;"><strong>Реф. №:</strong> ${escapeHtml(recipient.reference)}</p>
+                        </div>
+                        
+                        <!-- ПРЕВОЗВАЧ (Carrier) -->
+                        <div style="flex: 1; border: 1px solid #aaa; padding: 12px 15px; border-radius: 10px; background: #f9f9f9;">
+                            <h4 style="background: #1e3c72; color: white; padding: 6px 10px; margin: -12px -15px 12px -15px; border-radius: 10px 10px 0 0; font-size: 15px;">🚚 ПРЕВОЗВАЧ (Carrier)</h4>
+                            <p style="margin: 6px 0; font-size: 14px;"><strong>Еконт Експрес</strong></p>
+                            <p style="margin: 6px 0; font-size: 14px;">товарен терминал София<br>тел: 0700 1 70 70</p>
+                            <p style="margin: 6px 0; font-size: 14px;">№ на товарителница: ________</p>
+                        </div>
+                    </div>
+
+                    <!-- ТАБЛИЦА - точно като на изображението -->
+                    <table style="width: 100%; border-collapse: collapse; margin: 25px 0 20px 0; font-size: 13px;">
+                        <thead>
+                            <tr style="background: #1e3c72; color: white;">
+                                <th style="padding: 10px 5px; border: 1px solid #0d2a4a; text-align: center;">Палет</th>
+                                <th style="padding: 10px 5px; border: 1px solid #0d2a4a; text-align: left;">Съдържание</th>
+                                <th style="padding: 10px 5px; border: 1px solid #0d2a4a; text-align: center;">Бр.</th>
+                                <th style="padding: 10px 5px; border: 1px solid #0d2a4a; text-align: right;">Нето (кг)</th>
+                                <th style="padding: 10px 5px; border: 1px solid #0d2a4a; text-align: right;">Бруто (кг)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            pallets.forEach(p => {
+                const gross = p.totalWeight + tare;
+                totalNet += p.totalWeight;
+                totalGross += gross;
+                totalQty += p.totalQty;
+
+                const content = p.items.map(i => 
+                    `${escapeHtml(i.manufacturer)} ${escapeHtml(i.model)} (${i.quantity} бр.)`
+                ).join(' + ');
+
+                html += `
+                    <tr>
+                        <td style="padding: 8px 5px; border: 1px solid #999; text-align: center; font-weight: bold;">#${p.number}/${pallets.length}</td>
+                        <td style="padding: 8px 5px; border: 1px solid #999;">${content}</td>
+                        <td style="padding: 8px 5px; border: 1px solid #999; text-align: center;">${p.totalQty}</td>
+                        <td style="padding: 8px 5px; border: 1px solid #999; text-align: right;">${p.totalWeight.toFixed(1)} кг</td>
+                        <td style="padding: 8px 5px; border: 1px solid #999; text-align: right;">${gross.toFixed(1)} кг</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+
+                    <!-- ДОПЪЛНИТЕЛНА ИНФОРМАЦИЯ -->
+                    <div style="margin-bottom: 15px; font-size: 13px;">
+                        <p style="margin: 5px 0;">- Опаковка: ${pallets.length} палета, облепени с фолио, етикет.</p>
+                    </div>
+
+                    <!-- ОБЩО - точно както на изображението -->
+                    <div style="border-top: 2px solid #333; padding-top: 15px; margin-top: 15px;">
+                        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 30px; font-size: 16px; font-weight: bold;">
+                            <div><strong>ОБЩО (палети/тегло):</strong></div>
+                            <div>${totalNet.toFixed(1)} кг</div>
+                            <div style="color: #e74c3c;">${totalGross.toFixed(1)} кг</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('printContent').innerHTML = html;
+        }
+
+        function generatePalletLabels(tare, date, recipient) {
+            let html = '<div style="font-family: Arial;">';
+            
+            pallets.forEach((p, idx) => {
+                const gross = p.totalWeight + tare;
+                const isLast = idx === pallets.length - 1;
+                
+                html += `
+                    <div class="print-page" style="width: 15cm; height: 10cm; margin: 0 auto; ${!isLast ? 'page-break-after: always;' : ''}">
+                        <div style="width: 100%; height: 100%; border: 3px solid #1e3c72; border-radius: 12px; padding: 0.7cm; background: white; display: flex; flex-direction: column;">
+                            
+                            <!-- Header -->
+                            <div style="text-align: center; border-bottom: 2px solid #1e3c72; padding-bottom: 10px; margin-bottom: 10px;">
+                                <div style="font-size: 24px; font-weight: 900; color: #1e3c72;">ПАЛЕТ #${p.number}</div>
+                                <div style="font-size: 14px; color: #666;">от ${pallets.length} палета</div>
+                            </div>
+                            
+                            <!-- Barcode placeholder -->
+                            <div style="background: #eee; padding: 8px; text-align: center; font-family: monospace; font-size: 16px; border-radius: 20px; margin-bottom: 15px;">
+                                (баркод) AUTO•${Math.floor(100000 + Math.random() * 900000)}
+                            </div>
+                            
+                            <!-- Receiver info -->
+                            <div style="margin-bottom: 15px;">
+                                <div style="font-weight: bold; color: #1e3c72; margin-bottom: 5px;">📦 ПОЛУЧАТЕЛ:</div>
+                                <div style="font-size: 16px; font-weight: bold;">${escapeHtml(recipient.name)}</div>
+                                <div style="font-size: 13px; color: #555;">${escapeHtml(recipient.address)}</div>
+                            </div>
+                            
+                            <!-- Details grid -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; font-size: 14px;">
+                                <div><strong>Реф:</strong> ${escapeHtml(recipient.reference)}</div>
+                                <div><strong>Тегло бруто:</strong> ${gross.toFixed(1)} кг</div>
+                                <div><strong>Съдържание:</strong> ${p.totalQty} бр. акумулатори</div>
+                                <div><strong>Изпращач:</strong> AutoZone 33</div>
+                                <div><strong>Дата:</strong> ${date}</div>
+                            </div>
+                            
+                            <!-- Footer -->
+                            <div style="margin-top: auto; text-align: center; font-size: 11px; color: #777; border-top: 1px dashed #999; padding-top: 8px;">
+                                AutoZone 33 – Внимание: чупливо, батерии | тел: 02 479 45 45
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            document.getElementById('printContent').innerHTML = html;
+        }
+
+        function generateManifests(tare, date, recipient) {
+            let html = '<div style="font-family: Arial;">';
+            
+            pallets.forEach((p, idx) => {
+                const gross = p.totalWeight + tare;
+                const isLast = idx === pallets.length - 1;
+                
+                html += `
+                    <div class="print-page" style="width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; ${!isLast ? 'page-break-after: always;' : ''}">
+                        <div style="border: 2px solid #333; padding: 30px;">
+                            <div style="text-align: center; border-bottom: 3px double #333; padding-bottom: 20px; margin-bottom: 30px;">
+                                <h1 style="font-size: 28px; margin-bottom: 10px;">ТОВАРИТЕЛНИЦА</h1>
+                                <div style="font-size: 14px;">
+                                    <strong>Autozone 33 Ltd</strong> | Sofia, Munchen 14 str. wh.7<br>
+                                    📧 office@avtozona33.com | 📞 (+359) 2 479 45 45
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                                <div style="flex: 1; margin-right: 20px;">
+                                    <h3 style="background: #333; color: white; padding: 8px 15px; margin-bottom: 10px;">📦 ПОЛУЧАТЕЛ</h3>
+                                    <p style="font-size: 18px; font-weight: bold;">${escapeHtml(recipient.name)}</p>
+                                    <p>Адрес: ${escapeHtml(recipient.address)}</p>
+                                    <p>Тел.: ${escapeHtml(recipient.phone)}</p>
+                                </div>
+                                <div style="text-align: center; border: 3px solid #333; padding: 20px; min-width: 150px;">
+                                    <div style="font-size: 14px; color: #666;">ПАЛЕТ</div>
+                                    <div style="font-size: 72px; font-weight: 900; color: #333; line-height: 1;">${p.number}</div>
+                                    <div style="font-size: 18px; color: #666;">от ${pallets.length}</div>
+                                </div>
+                            </div>
+                            
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                                <thead>
+                                    <tr style="background: #333; color: white;">
+                                        <th style="padding: 12px; border: 1px solid #333; text-align: left;">№</th>
+                                        <th style="padding: 12px; border: 1px solid #333; text-align: left;">Производител</th>
+                                        <th style="padding: 12px; border: 1px solid #333; text-align: left;">Модел</th>
+                                        <th style="padding: 12px; border: 1px solid #333; text-align: center;">Брой</th>
+                                        <th style="padding: 12px; border: 1px solid #333; text-align: right;">Ед. тегло</th>
+                                        <th style="padding: 12px; border: 1px solid #333; text-align: right;">Общо тегло</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${p.items.map((i, iidx) => `
+                                        <tr>
+                                            <td style="padding: 10px; border: 1px solid #333;">${iidx + 1}</td>
+                                            <td style="padding: 10px; border: 1px solid #333;">${escapeHtml(i.manufacturer)}</td>
+                                            <td style="padding: 10px; border: 1px solid #333;">${escapeHtml(i.model)}</td>
+                                            <td style="padding: 10px; border: 1px solid #333; text-align: center; font-weight: bold;">${i.quantity}</td>
+                                            <td style="padding: 10px; border: 1px solid #333; text-align: right;">${i.weight.toFixed(2)} кг</td>
+                                            <td style="padding: 10px; border: 1px solid #333; text-align: right; font-weight: bold;">${(i.weight * i.quantity).toFixed(2)} кг</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                                <tfoot style="background: #f5f5f5; font-weight: bold;">
+                                    <tr>
+                                        <td colspan="3" style="padding: 12px; border: 1px solid #333; text-align: right;">ОБЩО:</td>
+                                        <td style="padding: 12px; border: 1px solid #333; text-align: center; font-size: 18px;">${p.totalQty}</td>
+                                        <td style="padding: 12px; border: 1px solid #333;"></td>
+                                        <td style="padding: 12px; border: 1px solid #333; text-align: right; font-size: 18px;">${p.totalWeight.toFixed(2)} кг</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5" style="padding: 12px; border: 1px solid #333; text-align: right;">Тегло на палет:</td>
+                                        <td style="padding: 12px; border: 1px solid #333; text-align: right;">${tare.toFixed(2)} кг</td>
+                                    </tr>
+                                    <tr style="background: #333; color: white;">
+                                        <td colspan="5" style="padding: 12px; border: 1px solid #333; text-align: right;">БРУТО ТЕГЛО:</td>
+                                        <td style="padding: 12px; border: 1px solid #333; text-align: right; font-size: 20px;">${gross.toFixed(2)} кг</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            
+                            <div style="display: flex; justify-content: space-between; margin-top: 50px;">
+                                <div style="text-align: center; width: 200px;">
+                                    <div style="border-top: 2px solid #333; margin-top: 50px; padding-top: 10px; font-weight: bold;">ПРЕДАЛ</div>
+                                    <div style="font-size: 12px; color: #666; margin-top: 5px;">(подпис, име)</div>
+                                </div>
+                                <div style="text-align: center; width: 200px;">
+                                    <div style="border-top: 2px solid #333; margin-top: 50px; padding-top: 10px; font-weight: bold;">ПОЛУЧИЛ</div>
+                                    <div style="font-size: 12px; color: #666; margin-top: 5px;">(подпис, име)</div>
+                                </div>
+                                <div style="text-align: center; width: 200px;">
+                                    <div style="border-top: 2px solid #333; margin-top: 50px; padding-top: 10px; font-weight: bold;">ДАТА</div>
+                                    <div style="font-size: 12px; color: #666; margin-top: 5px;">${date}</div>
+                                </div>
+                            </div>
+                            
+                            ${recipient.reference ? `<div style="margin-top: 30px; text-align: center; font-size: 12px; color: #666;">Референтен номер: ${escapeHtml(recipient.reference)}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            document.getElementById('printContent').innerHTML = html;
+        }
+
+        function finishOrder() {
+            const recipientName = document.getElementById('recipientName').value.trim();
+            const recipient = {
+                name: recipientName,
+                address: document.getElementById('deliveryAddress').value.trim(),
+                phone: document.getElementById('recipientPhone').value.trim(),
+                reference: document.getElementById('referenceNumber').value.trim()
+            };
+
+            if (orderHistory.length > 0) {
+                orderHistory[0].pallets = pallets.map(p => ({
+                    number: p.number,
+                    items: p.items,
+                    totalQty: p.totalQty,
+                    totalWeight: p.totalWeight
+                }));
+                orderHistory[0].recipient = recipient;
+                saveHistory();
+            }
+
+            // Show print section with default tab
+            currentPrintTab = 'all';
+            document.querySelectorAll('.print-tab').forEach((t, i) => {
+                t.classList.toggle('active', i === 0);
+            });
+            
+            generatePrintContent();
+            document.getElementById('printSection').classList.add('show');
+
+            currentOrder = [];
+            saveOrder();
+            updateStats();
+            showToast('✅ Поръчката е приключена!');
+        }
+
+        // HISTORY
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            
+            if (orderHistory.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div style="font-size: 48px;">📋</div><p>Няма запазени поръчки</p></div>';
+                return;
+            }
+
+            container.innerHTML = orderHistory.map(h => {
+                const date = new Date(h.date);
+                return `
+                    <div class="history-item" onclick="loadHistoryOrder(${h.id})">
+                        <div style="font-size: 13px; color: #666; margin-bottom: 5px;">
+                            📅 ${date.toLocaleDateString('bg-BG')} в ${date.toLocaleTimeString('bg-BG', {hour: '2-digit', minute:'2-digit'})}
+                            ${h.recipient?.name ? '| 📦 ' + escapeHtml(h.recipient.name) : ''}
+                        </div>
+                        <div style="font-weight: 600;">
+                            ${h.items.length} позиции | ${h.totalQty} бр. | ${h.totalWeight.toFixed(2)} кг | ${h.pallets?.length || 0} палета
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadHistoryOrder(id) {
+            const order = orderHistory.find(h => h.id === id);
+            if (!order) return;
+            
+            currentOrder = order.items.map(i => ({...i}));
+            
+            // Restore recipient info
+            if (order.recipient) {
+                document.getElementById('recipientName').value = order.recipient.name || '';
+                document.getElementById('deliveryAddress').value = order.recipient.address || '';
+                document.getElementById('recipientPhone').value = order.recipient.phone || '';
+                document.getElementById('referenceNumber').value = order.recipient.reference || '';
+            }
+            
+            saveOrder();
+            renderOrder();
+            switchTab('order');
+            showToast('Заредена поръчка от историята');
+        }
+
+        function clearHistory() {
+            if (!confirm('Изчисти цялата история?')) return;
+            orderHistory = [];
+            saveHistory();
+            renderHistory();
+            showToast('Историята е изчистена');
+        }
+
+        // UTILS
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Make functions available globally
+        window.switchTab = switchTab;
+        window.continueLastOrder = continueLastOrder;
+        window.handleFile = handleFile;
+        window.importFromPaste = importFromPaste;
+        window.loadDemoData = loadDemoData;
+        window.addSingleProduct = addSingleProduct;
+        window.deleteProduct = deleteProduct;
+        window.exportProducts = exportProducts;
+        window.clearAllProducts = clearAllProducts;
+        window.changeQty = changeQty;
+        window.addToOrder = addToOrder;
+        window.updateOrderQty = updateOrderQty;
+        window.setOrderQty = setOrderQty;
+        window.removeFromOrder = removeFromOrder;
+        window.clearCurrentOrder = clearCurrentOrder;
+        window.saveAndProceed = saveAndProceed;
+        window.createPallets = createPallets;
+        window.autoDistribute = autoDistribute;
+        window.addNewPallet = addNewPallet;
+        window.finishOrder = finishOrder;
+        window.switchPrintTab = switchPrintTab;
+        window.clearHistory = clearHistory;
+        window.loadHistoryOrder = loadHistoryOrder;
+        window.showAssign = showAssign;
+        window.hideAssign = hideAssign;
+        window.doAssign = doAssign;
+        window.removeFromPallet = removeFromPallet;
+        window.clearPallet = clearPallet;
+    
+        // ============================================
+        // ФУНКЦИИ ЗА ПЕЧАТ НА ПАКИНГ ЛИСТ (А4)
+        // ============================================
+
+        function printPackingListOnly() {
+            if (pallets.length === 0) {
+                showToast('Няма създадени палети', 'error');
+                return;
+            }
+
+            const recipientName = document.getElementById('recipientName').value.trim();
+            if (!recipientName) {
+                showToast('Моля, въведете получател', 'error');
+                return;
+            }
+
+            // Попълваме данните
+            const date = new Date().toLocaleDateString('bg-BG');
+            const tare = parseFloat(document.getElementById('palletTare').value) || 25;
+            const ref = document.getElementById('referenceNumber').value || '-';
+
+            document.getElementById('plDate').textContent = date;
+            document.getElementById('plRef').textContent = ref;
+
+            document.getElementById('plRecipientName').textContent = recipientName;
+            document.getElementById('plRecipientAddress').textContent = document.getElementById('deliveryAddress').value || '-';
+            document.getElementById('plRecipientPhone').textContent = '📞 ' + (document.getElementById('recipientPhone').value || '-');
+            document.getElementById('plRecipientEmail').textContent = 'ivan.panchovski@abv.bg';
+            document.getElementById('plRecipientRef').textContent = ref;
+
+            // Попълваме данни за превозвача
+            const carrierName = document.getElementById('carrierName').value.trim() || 'Еконт Експрес';
+            const carrierAddress = document.getElementById('carrierAddress').value.trim() || 'товарен терминал София';
+            const carrierPhone = document.getElementById('carrierPhone').value.trim() || '0700 1 70 70';
+
+            document.getElementById('plCarrierName').textContent = carrierName;
+            document.getElementById('plCarrierAddress').textContent = carrierAddress;
+            document.getElementById('plCarrierPhone').textContent = 'тел: ' + carrierPhone;
+
+            // Генерираме таблицата
+            const tbody = document.getElementById('plTableBody');
+            tbody.innerHTML = '';
+
+            let totalNet = 0, totalGross = 0, totalQty = 0;
+
+            pallets.forEach(p => {
+                const gross = p.totalWeight + tare;
+                totalNet += p.totalWeight;
+                totalGross += gross;
+                totalQty += p.totalQty;
+
+                // ЗА ВСЕКИ ПРОДУКТ В ПАЛЕТА - СЪЗДАВАМЕ ОТДЕЛЕН РЕД
+                p.items.forEach((item, index) => {
+                    const row = tbody.insertRow();
+                    const isFirstItem = index === 0;
+
+                    // Колона 1: Палет (само за първия продукт, иначе празно с rowspan)
+                    const palletCell = row.insertCell();
+                    palletCell.style.textAlign = 'center';
+                    palletCell.style.fontWeight = 'bold';
+                    if (isFirstItem) {
+                        palletCell.innerHTML = `#${p.number}/${pallets.length}`;
+                        palletCell.rowSpan = p.items.length;
+                    }
+
+                    // Колона 2: Съдържание (производител и модел)
+                    const contentCell = row.insertCell();
+                    contentCell.innerHTML = `${escapeHtml(item.manufacturer)} ${escapeHtml(item.model)}`;
+
+                    // Колона 3: Митнически код (HIS) - ВАЖНО!
+                    const customsCell = row.insertCell();
+                    customsCell.style.textAlign = 'center';
+                    customsCell.style.fontFamily = 'monospace';
+                    customsCell.style.fontSize = '9pt';
+                    customsCell.innerHTML = escapeHtml(item.customs || '8507 10 20');
+
+                    // Колона 4: Брой
+                    const qtyCell = row.insertCell();
+                    qtyCell.style.textAlign = 'center';
+                    qtyCell.innerHTML = `${item.quantity} бр.`;
+
+                    // Колона 5: Нето тегло
+                    const netCell = row.insertCell();
+                    netCell.style.textAlign = 'right';
+                    netCell.innerHTML = `${(item.weight * item.quantity).toFixed(2)} кг`;
+
+                    // Колона 6: Бруто тегло (само за първия продукт с теглото на палета)
+                    const grossCell = row.insertCell();
+                    grossCell.style.textAlign = 'right';
+                    grossCell.style.fontWeight = 'bold';
+                    if (isFirstItem) {
+                        grossCell.innerHTML = `${gross.toFixed(2)} кг`;
+                        grossCell.rowSpan = p.items.length;
+                    }
+                });
+            });
+
+            // Общи суми
+            document.getElementById('plTotalPallets').textContent = pallets.length;
+            document.getElementById('plTotalQty').textContent = totalQty;
+            document.getElementById('plTotalNet').textContent = totalNet.toFixed(2);
+            document.getElementById('plTotalGross').textContent = totalGross.toFixed(2);
+
+            // Показваме и печатаме
+            const printArea = document.getElementById('packingListPrintArea');
+            printArea.style.display = 'block';
+
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    printArea.style.display = 'none';
+                }, 1000);
+            }, 100);
+        }
+
+        // ============================================
+        // ФУНКЦИИ ЗА ПЕЧАТ НА ЕТИКЕТИ (10x15 см)
+        // ============================================
+
+        function printLabelsOnly() {
+            if (pallets.length === 0) {
+                showToast('Няма създадени палети', 'error');
+                return;
+            }
+
+            const recipientName = document.getElementById('recipientName').value.trim();
+            if (!recipientName) {
+                showToast('Моля, въведете получател', 'error');
+                return;
+            }
+
+            const container = document.getElementById('labelsContainer');
+            container.innerHTML = '';
+
+            const date = new Date().toLocaleDateString('bg-BG');
+            const tare = parseFloat(document.getElementById('palletTare').value) || 25;
+            const ref = document.getElementById('referenceNumber').value || '-';
+            const address = document.getElementById('deliveryAddress').value || '-';
+
+            pallets.forEach((p, idx) => {
+                const gross = p.totalWeight + tare;
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'label-10x15';
+
+                labelDiv.innerHTML = `
+                    <div class="label-header">
+                        <h2>ПАЛЕТ</h2>
+                        <div style="font-size: 10pt; color: #666;">AUTOZONE 33 Ltd</div>
+                    </div>
+
+                    <div class="label-pallet-num">${p.number} / ${pallets.length}</div>
+
+                    <div class="label-barcode">
+                        *PL${String(p.number).padStart(3, '0')}*
+                    </div>
+
+                    <div class="label-info">
+                        <div class="label-row">
+                            <span class="label-label">ПОЛУЧАТЕЛ:</span>
+                            <span class="label-value" style="font-weight: bold;">${escapeHtml(recipientName)}</span>
+                        </div>
+                        <div class="label-row">
+                            <span class="label-label">Адрес:</span>
+                            <span class="label-value">${escapeHtml(address)}</span>
+                        </div>
+                        <div class="label-row">
+                            <span class="label-label">Реф. №:</span>
+                            <span class="label-value">${escapeHtml(ref)}</span>
+                        </div>
+                        <div class="label-row">
+                            <span class="label-label">Съдържание:</span>
+                            <span class="label-value">${p.totalQty} бр. акумулатори</span>
+                        </div>
+                        <div class="label-row">
+                            <span class="label-label">Тегло нето:</span>
+                            <span class="label-value">${p.totalWeight.toFixed(2)} кг</span>
+                        </div>
+                        <div class="label-row">
+                            <span class="label-label">Тегло бруто:</span>
+                            <span class="label-value" style="font-weight: bold; font-size: 12pt;">${gross.toFixed(2)} кг</span>
+                        </div>
+                        <div class="label-row">
+                            <span class="label-label">Дата:</span>
+                            <span class="label-value">${date}</span>
+                        </div>
+                    </div>
+
+                    <div class="label-footer">
+                        <div style="font-weight: bold; margin-bottom: 2mm;">⚠️ ВНИМАНИЕ: ЧУПЛИВО! БАТЕРИИ!</div>
+                        <div>Изпращач: AUTOZONE 33 Ltd | тел: 02 479 45 45</div>
+                    </div>
+                `;
+
+                container.appendChild(labelDiv);
+            });
+
+            // Показваме етикетите и печатаме
+            const labelArea = document.getElementById('labelPrintArea');
+            labelArea.style.display = 'block';
+            document.body.classList.add('printing-labels');
+
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    labelArea.style.display = 'none';
+                    document.body.classList.remove('printing-labels');
+                }, 1000);
+            }, 100);
+        }
+
+</script>
+
+    <!-- ============================================
+         КОНТЕЙНЕР ЗА ПЕЧАТ НА ПАКИНГ ЛИСТ (А4)
+         ============================================ -->
+    <div id="packingListPrintArea" style="display: none;">
+        <div class="packing-a4">
+            <div class="packing-header">
+                <h1>PACKING LIST</h1>
+                <div class="packing-company-info">
+                    <strong>AUTOZONE 33 Ltd</strong><br>
+                    Sofia, München 14 str. warehouse 7<br>
+                    office@avtozona33.com | (+359) 2 479 45 45
+                </div>
+                <div style="margin-top: 10px; font-size: 10pt;">
+                    <strong>Дата:</strong> <span id="plDate"></span> | 
+                    <strong>Реф. №:</strong> <span id="plRef"></span>
+                </div>
+            </div>
+
+            <div class="packing-parties">
+                <div class="party-box">
+                    <h3>📦 ИЗПРАЩАЧ (Sender)</h3>
+                    <p><strong>AUTOZONE 33 Ltd</strong></p>
+                    <p>Sofia, München 14 str.</p>
+                    <p>warehouse 7, България</p>
+                    <p>office@avtozona33.com</p>
+                    <p>тел: (+359) 2 479 45 45</p>
+                </div>
+
+                <div class="party-box">
+                    <h3>📦 ПОЛУЧАТЕЛ (Receiver)</h3>
+                    <p><strong id="plRecipientName"></strong></p>
+                    <p id="plRecipientAddress"></p>
+                    <p id="plRecipientPhone"></p>
+                    <p id="plRecipientEmail"></p>
+                    <p><strong>Реф. №:</strong> <span id="plRecipientRef"></span></p>
+                </div>
+
+                <div class="party-box">
+                    <h3>🚚 ПРЕВОЗВАЧ (Carrier)</h3>
+                    <p><strong id="plCarrierName">Еконт Експрес</strong></p>
+                    <p id="plCarrierAddress">товарен терминал София</p>
+                    <p id="plCarrierPhone">тел: 0700 1 70 70</p>
+                    <p>№ на товарителница:</p>
+                    <p style="border-bottom: 1px solid #000; min-height: 20px;"></p>
+                </div>
+            </div>
+
+            <table class="packing-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">Палет</th>
+                        <th style="width: 35%;">Съдържание</th>
+                        <th style="width: 15%;">Митн. Код (HIS)</th>
+                        <th style="width: 10%;">Брой</th>
+                        <th style="width: 15%;">Нето тегло</th>
+                        <th style="width: 17%;">Бруто тегло</th>
+                    </tr>
+                </thead>
+                <tbody id="plTableBody">
+                </tbody>
+            </table>
+
+            <div class="packing-totals">
+                <div>Общо палети: <span id="plTotalPallets">0</span></div>
+                <div>Общо брой: <span id="plTotalQty">0</span></div>
+                <div>Общо нето: <span id="plTotalNet">0.00</span> кг</div>
+                <div style="color: #c00; font-size: 14pt;">ОБЩО БРУТО: <span id="plTotalGross">0.00</span> кг</div>
+            </div>
+
+            <div class="packing-signatures">
+                <div class="signature-line">Изготвил<br>(подпис)</div>
+                <div class="signature-line">Проверил<br>(подпис)</div>
+                <div class="signature-line">Получил<br>(подпис)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         КОНТЕЙНЕР ЗА ПЕЧАТ НА ЕТИКЕТИ (10x15 см)
+         ============================================ -->
+    <div id="labelPrintArea" class="label-only-print" style="display: none;">
+        <div id="labelsContainer"></div>
+    </div>
+
+</body>
+</html>
