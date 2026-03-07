@@ -4,7 +4,7 @@ html_content = '''<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AUTOZONE 33 - HUB PRO v2.1</title>
+    <title>AUTOZONE 33 - HUB PRO v2.2</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -649,7 +649,7 @@ html_content = '''<!DOCTYPE html>
                 <div class="brand-icon">🏢</div>
                 <div class="brand-text">
                     <h1>AUTOZONE 33</h1>
-                    <span>HUB PRO v2.1</span>
+                    <span>HUB PRO v2.2</span>
                 </div>
             </div>
         </div>
@@ -865,51 +865,51 @@ html_content = '''<!DOCTYPE html>
             </div>
 
             <!-- Iframe -->
-            <iframe id="frame" src="OrderV16%20final.html"></iframe>
+            <iframe id="frame" src="OrderV16.html"></iframe>
         </div>
     </main>
 
     <script>
-        // Module URLs mapping - КОРИГИРАНИ ИМЕНА СЪС СПЕЙСОВЕТЕ
+        // Module URLs mapping - КОРИГИРАНИ ИМЕНА според GitHub
         const MODULES = {
             order: { 
                 name: 'Нова Поръчка', 
-                url: 'OrderV16%20final.html',  // С %20 вместо space
+                url: 'OrderV16.html',  // БЕЗ интервали и "final"
                 icon: '🛒' 
             },
             packing: { 
                 name: 'Пакетиране & Етикети', 
-                url: 'PacinglistV7%20final.html', 
+                url: 'PacinglistV7.html',  // БЕЗ интервали и "final"
                 icon: '📦' 
             },
             inventory: { 
                 name: 'Наличности', 
-                url: 'Nalichnost%20V12%20Avtozona33%20final.html', 
+                url: 'Nalichnost%20V12%20Avtozona33%20final.html',  // С интервали - кодирани
                 icon: '📊' 
             },
             tracking: { 
                 name: 'Проследяване', 
-                url: 'Traging%20final.HTML', 
+                url: 'Traging%20final.HTML',  // С интервали - кодирани
                 icon: '🚚' 
             },
             battery: { 
                 name: 'Сравнител Цени', 
-                url: 'Battery%20price%20pro%20V4%20final.html', 
+                url: 'Battery%20price%20pro%20V4%20final.html',  // С интервали - кодирани
                 icon: '⚖️' 
             },
             cash: { 
                 name: 'Касов Отчет', 
-                url: 'kasov-otchet-online%20V3%20final.html', 
+                url: 'kasov-otchet-online%20V3%20final.html',  // С интервали - кодирани
                 icon: '💰' 
             },
             fleet: { 
                 name: 'Автопарк', 
-                url: 'autofleet%20PRO.html', 
+                url: 'autofleet%20PRO.html',  // С интервали - кодирани
                 icon: '🚐' 
             },
             moto: { 
                 name: 'Moto Manager', 
-                url: 'Moto%20Mahager%20V1.html', 
+                url: 'Moto%20Mahager%20V1.html',  // С интервали - кодирани
                 icon: '🏍️' 
             }
         };
@@ -970,6 +970,7 @@ html_content = '''<!DOCTYPE html>
 
         // Load module
         function loadModule(moduleId, element) {
+            console.log('Loading module:', moduleId);
             const module = MODULES[moduleId];
             if (!module) {
                 showError('Неизвестен модул: ' + moduleId);
@@ -983,14 +984,17 @@ html_content = '''<!DOCTYPE html>
             
             // Update iframe
             const iframe = document.getElementById('frame');
+            console.log('Setting src to:', module.url);
             iframe.src = module.url;
             
             // Check if loaded
             iframe.onload = () => {
+                console.log('Module loaded successfully');
                 document.getElementById('loadingScreen').classList.add('hidden');
             };
             
             iframe.onerror = () => {
+                console.error('Failed to load module');
                 document.getElementById('loadingScreen').classList.add('hidden');
                 showError('Грешка при зареждане на ' + module.name + '. Файлът не е намерен: ' + module.url);
             };
@@ -1187,8 +1191,9 @@ html_content = '''<!DOCTYPE html>
             }, 200);
         }
 
-        // Quick Actions
+        // Quick Actions - КОРИГИРАНИ
         function quickAction(action) {
+            console.log('Quick action:', action);
             switch(action) {
                 case 'newOrder':
                     loadModule('order', document.querySelector('[onclick*=\"order\"]'));
@@ -1273,10 +1278,11 @@ html_content = '''<!DOCTYPE html>
 with open('/mnt/kimi/output/index.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
 
-print("✅ index.html (HUB PRO v2.1) е създаден успешно!")
+print("✅ index.html (HUB PRO v2.2) е създаден успешно!")
 print(f"📊 Размер: {len(html_content):,} bytes")
 print("\n🔧 ПРОМЕНИ:")
-print("- Имената на файловете са с %20 вместо интервали")
-print("- Добавена е обработка на грешки")
-print("- Проверка дали iframe се зарежда")
-print("- Loading screen при смяна на модули")
+print("- OrderV16.html (без интервали)")
+print("- PacinglistV7.html (без интервали)")
+print("- Другите с %20 за интервали")
+print("- Добавени console.log за дебъгване")
+print("- Поправени quickAction функциите")
