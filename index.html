@@ -2,137 +2,77 @@
 <html lang="bg">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autozone 33 - Logistics Hub</title>
+    <title>Autozone 33 - Logistics HUB</title>
     <style>
-        :root {
-            --primary: #1a237e;
-            --secondary: #283593;
-            --accent: #00e5ff;
-            --bg: #f8f9fa;
-            --sidebar-width: 280px;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: var(--bg); display: flex; height: 100vh; overflow: hidden; }
-
-        /* SIDEBAR */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: var(--primary);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
-        }
-
-        .sidebar-header {
-            padding: 30px 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .sidebar-header h2 { font-size: 1.6rem; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .sidebar-header span { font-size: 0.8rem; color: var(--accent); letter-spacing: 2px; }
+        :root { --sidebar: #1a237e; --accent: #00e5ff; }
+        body { margin: 0; display: flex; height: 100vh; font-family: sans-serif; background: #f0f2f5; overflow: hidden; }
+        
+        /* SIDEBAR СТИЛ */
+        .sidebar { width: 280px; background: var(--sidebar); color: white; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.2); z-index: 10; }
+        .sidebar-header { padding: 30px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header h2 { font-size: 1.5rem; letter-spacing: 1px; color: #fff; margin: 0; }
+        .sidebar-header span { font-size: 0.75rem; color: var(--accent); font-weight: bold; text-transform: uppercase; }
 
         .nav-menu { flex-grow: 1; padding: 20px 0; overflow-y: auto; }
-        .nav-item {
-            display: flex; align-items: center; padding: 15px 25px;
-            color: #cfd8dc; text-decoration: none; cursor: pointer;
-            transition: all 0.2s ease; border-left: 5px solid transparent;
+        .nav-item { 
+            padding: 15px 25px; cursor: pointer; border-left: 4px solid transparent; 
+            color: #cfd8dc; transition: 0.3s; font-size: 0.95rem;
         }
+        .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: white; border-left-color: var(--accent); }
 
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
-        .nav-item.active { 
-            background: var(--secondary); 
-            color: white; 
-            border-left-color: var(--accent);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-        }
+        /* ГЛАВЕН ПРОЗОРЕЦ */
+        .main { flex-grow: 1; display: flex; flex-direction: column; }
+        .top-bar { height: 65px; background: white; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; font-weight: bold; color: #1a237e; }
+        iframe { width: 100%; height: 100%; border: none; background: white; }
 
-        /* CONTENT AREA */
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; }
-        
-        .top-bar {
-            height: 70px; background: white; border-bottom: 1px solid #dee2e6;
-            display: flex; align-items: center; justify-content: space-between; padding: 0 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .viewport { flex-grow: 1; position: relative; background: #fff; }
-        iframe { width: 100%; height: 100%; border: none; }
-
-        .system-status { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #666; }
-        .dot { height: 10px; width: 10px; background: #4caf50; border-radius: 50%; box-shadow: 0 0 5px #4caf50; }
+        .clock { font-size: 0.9rem; color: #666; }
     </style>
 </head>
 <body>
 
-    <aside class="sidebar">
+    <div class="sidebar">
         <div class="sidebar-header">
             <h2>AUTOZONE 33</h2>
-            <span>SMART LOGISTICS</span>
+            <span>Logistics Hub Pro</span>
         </div>
-        <nav class="nav-menu">
-            <div class="nav-item active" onclick="loadModule('OrderV16 final.html', this)">🛒 Нова Поръчка</div>
-            <div class="nav-item" onclick="loadModule('PacinglistV7 final.html', this)">📦 Пакетиране & Етикети</div>
-            <div class="nav-item" onclick="loadModule('Nalichnost V12 Avtozona33 final.html', this)">📊 Наличности</div>
-            <div class="nav-item" onclick="loadModule('Traging final.HTML', this)">🚚 Проследяване</div>
-            <div class="nav-item" onclick="loadModule('Battery price pro V4 final.html', this)">⚖️ Сравнител Цени</div>
-            <div class="nav-item" onclick="loadModule('kasov-otchet-online V3 final.html', this)">💰 Касов Отчет</div>
-            <div class="nav-item" onclick="loadModule('autofleet PRO.html', this)">🚐 Автопарк</div>
-            <div class="nav-item" onclick="loadModule('Moto Mahager V1.html', this)">🏍️ Moto Manager</div>
-        </nav>
-        <div style="padding: 20px; font-size: 0.7rem; opacity: 0.4; text-align: center;">v2.0 ERP Edition</div>
-    </aside>
+        <div class="nav-menu">
+            <div class="nav-item active" onclick="load('OrderV16 final.html', this)">🛒 Нова Поръчка</div>
+            <div class="nav-item" onclick="load('PacinglistV7 final.html', this)">📦 Пакетиране & Етикети</div>
+            <div class="nav-item" onclick="load('Nalichnost V12 Avtozona33 final.html', this)">📊 Наличности</div>
+            <div class="nav-item" onclick="load('Traging final.HTML', this)">🚚 Проследяване</div>
+            <div class="nav-item" onclick="load('Battery price pro V4 final.html', this)">⚖️ Сравнител Цени</div>
+            <div class="nav-item" onclick="load('kasov-otchet-online V3 final.html', this)">💰 Касов Отчет</div>
+            <div class="nav-item" onclick="load('autofleet PRO.html', this)">🚐 Автопарк</div>
+            <div class="nav-item" onclick="load('Moto Mahager V1.html', this)">🏍️ Moto Manager</div>
+        </div>
+        <div style="padding: 15px; font-size: 10px; opacity: 0.4; text-align: center;">v2.0 Managed by Gemini</div>
+    </div>
 
-    <main class="main-content">
+    <div class="main">
         <div class="top-bar">
-            <h3 id="current-title" style="color: var(--primary);">Модул: Нова Поръчка</h3>
-            <div class="system-status">
-                <span id="clock">--:--:--</span>
-                <span class="dot"></span> Online
-            </div>
+            <span id="title">Модул: Нова Поръчка</span>
+            <span id="live-clock" class="clock"></span>
         </div>
-
-        <div class="viewport">
-            <iframe id="main-frame" src="OrderV16 final.html"></iframe>
-        </div>
-    </main>
+        <iframe id="frame" src="OrderV16 final.html"></iframe>
+    </div>
 
     <script>
-        // Превключване на модули
-        function loadModule(url, el) {
-            document.getElementById('main-frame').src = url;
-            document.getElementById('current-title').innerText = "Модул: " + el.innerText;
+        function load(file, el) {
+            document.getElementById('frame').src = file;
+            document.getElementById('title').innerText = "Модул: " + el.innerText;
             
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            // Смяна на активния бутон в менюто
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
         }
 
-        // Часовник
-        function updateClock() {
+        // Часовник в реално време
+        function updateTime() {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('bg-BG');
+            document.getElementById('live-clock').innerText = now.toLocaleTimeString('bg-BG');
         }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // Слушател за прехвърляне на данни (PostMessage API)
-        window.addEventListener('message', function(event) {
-            if (event.data.type === 'GOTO_PACKING') {
-                const packingBtn = document.querySelectorAll('.nav-item')[1];
-                loadModule('PacinglistV7 final.html', packingBtn);
-                
-                // Изчакваме iframe да зареди и му пращаме данните
-                setTimeout(() => {
-                    document.getElementById('main-frame').contentWindow.postMessage({
-                        type: 'LOAD_ORDER',
-                        data: event.data.orderData
-                    }, '*');
-                }, 1000);
-            }
-        });
+        setInterval(updateTime, 1000);
+        updateTime();
     </script>
 </body>
 </html>
