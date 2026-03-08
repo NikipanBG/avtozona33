@@ -911,23 +911,52 @@
         }
     }
 
-    function exportData() {
-        const data = {
-            обект: CURRENT_LOCATION,
-            касиер: document.getElementById('cashierName').value,
-            продажби: JSON.parse(localStorage.getItem(STORAGE_KEY + '_sales') || '[]'),
-            служебни: JSON.parse(localStorage.getItem(STORAGE_KEY + '_services') || '[]'),
-            настройки: {
-                initialEUR: document.getElementById('initialEUR').value
-            },
-            дата_експорт: new Date().toISOString()
-        };
-        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `kasov_otchet_${CURRENT_LOCATION.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
+    // ПОСТАВИ ТОЗИ КОД НА МЯСТОТО МУ:
+async function exportData() {
+    // ВЗЕМА URL АДРЕСА, КОЙТО СИ ВЪВЕЛ В НАСТРОЙКИТЕ НА ПРИЛОЖЕНИЕТО
+    const scriptURL = document.getElementById('sheetUrl').value;
+    
+    if (!scriptURL || scriptURL.includes('YOUR_ID_HERE')) {
+        alert('❌ Моля, първо въведете валиден Google Apps Script URL в таб "Обобщение" -> "Настройки"!');
+        return;
+    }
+
+    const data = {
+        обект: CURRENT_LOCATION,
+        касиер: document.getElementById('cashierName').value,
+        продажби: JSON.parse(localStorage.getItem(STORAGE_KEY + '_sales') || '[]'),
+        служебни: JSON.parse(localStorage.getItem(STORAGE_KEY + '_services') || '[]'),
+        настройки: {
+            initialEUR: document.getElementById('initialEUR').value
+        },
+        дата_експорт: new Date().toISOString()
+    };
+
+    if (data.продажби.length === 0 && data.служебни.length === 0) {
+        alert("Няма данни за изпращане!");
+        return;
+    }
+
+    try {
+        // ИЗПРАЩАНЕ КЪМ GOOGLE DRIVE
+        const response = await fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors', // Позволява комуникация с Google Script без CORS грешки
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'saveToDrive',
+                filename: `Report_${data.обект}_${new Date().toISOString().split('T')[0]}.json`,
+                data: data
+            })
+        });
+
+        alert('✅ Данните са изпратени успешно към Google Drive!');
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Грешка при връзката с Google Drive! Проверете интернет връзката и URL адреса.');
+    }
     }
 
     function clearAllData() {
@@ -942,4 +971,5 @@
 </script>
 
 </body>
+
 </html>
