@@ -3,354 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Автозона 33 - Система за пратки</title>
+    <title>Order Pro - Управление на пратки</title>
     <style>
         :root { 
             --primary: #2ea44f; 
             --viber: #7360f2; 
             --email: #007bff; 
             --danger: #d73a49; 
-            --dark: #1a1d21;
-            --success: #28a745;  /* ЛИПСВАШЕ ТАЗИ ПРОМЕНЛИВА */
-            --warning: #ffc107;
+            --dark: #24292e;
         }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-        .brand { font-size: 24px; font-weight: 800; color: var(--dark); }
-        .admin-panel { display: grid; grid-template-columns: 1.5fr 1.2fr 1.2fr 1fr auto; gap: 12px; margin-bottom: 25px; background: #fafafa; padding: 20px; border-radius: 12px; border: 1px solid #eee; }
-        input, select, button { padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; font-family: inherit; }
-        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46, 164, 79, 0.1); }
-        .btn-add { background: var(--dark); color: white; font-weight: bold; cursor: pointer; border: none; transition: all 0.2s; }
-        .btn-add:hover { background: #000; transform: translateY(-1px); }
-        .btn-export { background: #6e7681; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .btn-export:hover { background: #5a6268; }
-        .order-card { background: #fff; border: 1px solid #e1e4e8; padding: 18px; margin-bottom: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid #ccc; transition: all 0.2s; }
-        .order-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.05); transform: translateX(2px); }
-        .status-travel { border-left-color: var(--email); }
-        .status-done { border-left-color: var(--success); }
-        .status-issue { border-left-color: var(--danger); }
-        .order-info strong { display: block; font-size: 18px; margin-bottom: 4px; }
-        .order-info span { display: block; color: #666; font-size: 14px; margin-top: 4px; }
-        .copy-badge { cursor: pointer; background: #f0f7ff; color: #0056b3; padding: 4px 10px; border-radius: 6px; font-family: monospace; font-size: 13px; font-weight: 600; border: 1px solid #cce3ff; display: inline-block; margin-top: 6px; transition: all 0.2s; }
-        .copy-badge:hover { background: #e1f0ff; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #1c1e21; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        
+        /* Панел за управление */
+        .admin-panel { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 20px; }
+        input, select, button { padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; outline: none; }
+        input:focus { border-color: var(--primary); }
+        
+        button { cursor: pointer; border: none; font-weight: 600; transition: 0.2s; color: white; }
+        .btn-add { background: var(--primary); }
+        .btn-add:hover { background: #22863a; transform: translateY(-1px); }
+        
+        /* Статистика и Търсене */
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .stats { font-size: 14px; color: #57606a; background: #f6f8fa; padding: 8px 15px; border-radius: 20px; }
+        .search-box { width: 100%; margin-bottom: 20px; padding: 12px; border: 2px solid #e1e4e8; background: #fff url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>') no-repeat 97% center; }
+
+        /* Карти за поръчки */
+        .order-card { background: #fff; border: 1px solid #e1e4e8; padding: 15px; margin-bottom: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .order-card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        .order-info strong { display: block; font-size: 17px; color: var(--dark); margin-bottom: 4px; }
+        .order-info small { color: #57606a; display: block; margin-bottom: 8px; }
+        
+        .copy-badge { cursor: pointer; background: #f1f8ff; color: #0366d6; padding: 4px 8px; border-radius: 5px; font-family: monospace; font-size: 13px; border: 1px dashed #0366d6; }
+        .copy-badge:hover { background: #dbedff; }
+
         .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-        .btn-action { padding: 10px 14px; font-size: 13px; border-radius: 8px; color: white; border: none; cursor: pointer; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 4px; }
-        .btn-action:hover { transform: translateY(-1px); opacity: 0.9; }
-        .btn-copy-text { background: #6f42c1; }
-        .btn-status-travel { background: #f8f9fa; color: #444; border: 1px solid #ddd; }
-        .btn-status-done { background: var(--success); color: white; }
-        .btn-status-issue { background: var(--danger); color: white; }
-        
-        /* Toast известия вместо alert */
-        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--dark); color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 1000; opacity: 0; transform: translateY(20px); transition: all 0.3s; font-weight: 500; }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .toast.success { background: var(--success); }
-        .toast.error { background: var(--danger); }
-        
-        .stats { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .stat-box { background: #f8f9fa; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; color: #666; border: 1px solid #eee; }
-        .stat-box span { color: var(--dark); font-size: 18px; margin-left: 5px; }
-        
-        @media (max-width: 900px) { 
-            .admin-panel { grid-template-columns: 1fr; } 
+        .btn-action { padding: 8px 12px; font-size: 12px; display: flex; align-items: center; gap: 6px; border-radius: 6px; }
+        .btn-viber { background: var(--viber); }
+        .btn-email { background: var(--email); }
+        .btn-track { background: var(--dark); }
+        .btn-delete { background: #fff; color: var(--danger); border: 1px solid #efefef; }
+        .btn-delete:hover { background: #fff5f5; border-color: var(--danger); }
+
+        @media (max-width: 768px) {
+            .admin-panel { grid-template-columns: 1fr; }
             .order-card { flex-direction: column; align-items: flex-start; gap: 15px; }
-            .actions { width: 100%; }
-            .btn-action { flex: 1; justify-content: center; }
+            .actions { width: 100%; justify-content: space-between; }
         }
-        
-        .empty-state { text-align: center; padding: 40px; color: #666; font-size: 16px; }
-        .empty-state-icon { font-size: 48px; margin-bottom: 10px; opacity: 0.3; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <div class="brand">🏎️ Автозона 33</div>
-        <button class="btn-export" onclick="exportToCSV()">📥 Свали Excel</button>
-    </div>
-    
-    <div class="stats" id="stats">
-        <div class="stat-box">📦 Общо: <span id="totalCount">0</span></div>
-        <div class="stat-box">🚚 Пътуват: <span id="travelCount">0</span></div>
-        <div class="stat-box">✅ Доставени: <span id="doneCount">0</span></div>
-        <div class="stat-box">⚠️ Проблеми: <span id="issueCount">0</span></div>
+    <div class="header-flex">
+        <h2>📦 Order Pro</h2>
+        <div class="stats" id="statsDisplay">Зареждане...</div>
     </div>
     
     <div class="admin-panel">
-        <input type="text" id="custName" placeholder="Име на клиент *" required>
-        <input type="tel" id="custPhone" placeholder="Телефон (089xxxxxxx)" pattern="[0-9+]*">
-        <input type="text" id="trackNo" placeholder="Товарителница № *" oninput="detect(this.value)" required>
+        <input type="text" id="custName" placeholder="Име на клиент">
+        <input type="text" id="trackNo" placeholder="Товарителница №">
         <select id="courier">
             <option value="econt">Еконт</option>
             <option value="speedy">Спиди</option>
             <option value="boxnow">BoxNow</option>
             <option value="sameday">Sameday</option>
         </select>
-        <button class="btn-add" onclick="addOrder()">ДОБАВИ</button>
+        <button class="btn-add" onclick="addOrder()">➕ ДОБАВИ</button>
     </div>
 
-    <input type="text" id="search" style="width:100%; margin-bottom:20px; padding:12px; border:2px solid #eee; border-radius:10px;" placeholder="🔍 Търси по име или номер..." onkeyup="render()">
+    <input type="text" id="search" class="search-box" placeholder="Търси по име или номер..." onkeyup="filterOrders()">
+
     <div id="list"></div>
 </div>
 
-<div id="toast" class="toast"></div>
-
 <script>
-    let orders = JSON.parse(localStorage.getItem('autozonaOrders') || '[]');
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', render);
 
-    function showToast(message, type = '') {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.className = 'toast ' + type;
-        setTimeout(() => toast.classList.add('show'), 10);
-        setTimeout(() => toast.classList.remove('show'), 3000);
+    function getGreeting() {
+        const hour = new Date().getHours();
+        if (hour < 11) return "Добро утро";
+        if (hour < 18) return "Добър ден";
+        return "Добър вечер";
     }
 
-    function detect(val) {
-        const sel = document.getElementById('courier');
-        const v = val.trim().toLowerCase();
-        
-        // Sameday: започва с 1O (буквата O) или 10, дължина 14
-        if (v.length === 14 && (v.startsWith('1o') || v.startsWith('10'))) sel.value = 'sameday';
-        // Econt: 13 цифри
-        else if (v.length === 13 && /^\d+$/.test(v)) sel.value = 'econt';
-        // Speedy: 11 цифри
-        else if (v.length === 11 && /^\d+$/.test(v)) sel.value = 'speedy';
-        // BoxNow: 10 цифри
-        else if (v.length === 10 && /^\d+$/.test(v)) sel.value = 'boxnow';
-    }
-
-    function formatPhone(phone) {
-        if (!phone) return '';
-        // Премахва всичко освен цифри и +
-        let cleaned = phone.replace(/[^\d+]/g, '');
-        // Ако започва с 0, го запазваме
-        // Ако започва с 359, добавяме +
-        if (cleaned.startsWith('359') && !cleaned.startsWith('+')) {
-            cleaned = '+' + cleaned;
-        }
-        return cleaned;
+    function getTrackUrl(courier, num) {
+        const urls = {
+            econt: `https://www.econt.com/services/track-shipment/${num}`,
+            speedy: `https://www.speedy.bg/bg/track-shipment?shipmentNumber=${num}`,
+            boxnow: `https://www.boxnow.bg/track/${num}`,
+            sameday: `https://sameday.bg/#awb=${num}`
+        };
+        return urls[courier] || "#";
     }
 
     function addOrder() {
         const name = document.getElementById('custName').value.trim();
-        const phone = formatPhone(document.getElementById('custPhone').value);
         const num = document.getElementById('trackNo').value.trim();
         const courier = document.getElementById('courier').value;
-        
-        if (!name || !num) {
-            showToast('Моля попълнете име и номер на товарителница!', 'error');
-            return;
-        }
-        
-        orders.unshift({ 
-            id: Date.now(), 
-            name, 
-            phone, 
-            num, 
-            courier, 
-            status: 'travel', 
-            date: new Date().toLocaleString('bg-BG'),
-            createdAt: Date.now()
+
+        if (!name || !num) return alert("Моля, попълнете име на клиент и номер на товарителница!");
+
+        const orders = JSON.parse(localStorage.getItem('proOrders') || '[]');
+        orders.unshift({
+            id: Date.now(),
+            name,
+            num,
+            courier,
+            date: new Date().toLocaleString('bg-BG', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
         });
         
-        save(); 
+        localStorage.setItem('proOrders', JSON.stringify(orders));
+        document.getElementById('custName').value = '';
+        document.getElementById('trackNo').value = '';
         render();
-        showToast('Пратката е добавена успешно!', 'success');
-        
-        // Изчистване на полетата
-        ['custName', 'custPhone', 'trackNo'].forEach(id => document.getElementById(id).value = '');
-        document.getElementById('custName').focus();
     }
 
-    function getTrackUrl(o) {
-        if (o.courier === 'econt') return `https://www.econt.com/services/track-shipment/${o.num}`;
-        if (o.courier === 'speedy') return `https://www.speedy.bg/bg/track-shipment/?shipmentNumber=${o.num}`;
-        if (o.courier === 'boxnow') return `https://boxnow.bg/track/${o.num}`;  // ПОПРАВЕНО: .bg вместо .com
-        if (o.courier === 'sameday') return `https://sameday.bg/#awb=${o.num}`;
-        return "";
+    function sendViber(name, num, courier) {
+        const url = getTrackUrl(courier, num);
+        const text = `✨ ${getGreeting()}, ${name}!\n\nВашата поръчка е изпратена по ${courier.toUpperCase()}.\n\n📦 Товарителница: ${num}\n📍 Проследяване: ${url}\n\nБлагодарим Ви!`;
+        window.open(`viber://forward?text=${encodeURIComponent(text)}`);
     }
 
-    function getViberText(o) {
-        const url = getTrackUrl(o);
-        const hour = new Date().getHours();
-        const greet = hour < 11 ? "Добро утро" : (hour < 18 ? "Добър ден" : "Добър вечер");
-        
-        return `✨ ${greet}, ${o.name}!\n\nВашата поръчка от Автозона 33 е изпратена чрез ${o.courier.toUpperCase()}.\n\n📦 Товарителница №: ${o.num}\n\nЛинк за проследяване:\n${url}\n\nБлагодарим Ви за доверието! 🏎️`;
+    function sendEmail(name, num, courier) {
+        const url = getTrackUrl(courier, num);
+        const subject = encodeURIComponent(`Доставка за ${name}`);
+        const body = encodeURIComponent(`${getGreeting()}, ${name},\n\nВашата пратка пътува към Вас с куриер ${courier.toUpperCase()}.\n\nНомер на товарителница: ${num}\nЛинк за проследяване: ${url}\n\nПоздрави от екипа!`);
+        window.location.href = `mailto:?subject=${subject}&body=${body}`;
     }
 
-    function sendViber(id) {
-        const o = orders.find(x => x.id === id);
-        const text = getViberText(o);
-        
-        // Опитваме Viber deep link
-        const viberUrl = `viber://forward?text=${encodeURIComponent(text)}`;
-        
-        // Проверка дали е мобилно устройство
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        
-        if (isMobile) {
-            window.location.href = viberUrl;
-            // Копираме текста като backup
-            copyToClipboard(text, false);
-            showToast('Отваряне на Viber... Текстът е копиран в клипборда', 'success');
-        } else {
-            // На десктоп - само копираме текста
-            copyToClipboard(text, true);
-            showToast('Viber работи само на мобилни устройства. Текстът е копиран!', 'success');
+    function deleteOrder(id) {
+        if (confirm("Изтриване на този запис?")) {
+            let orders = JSON.parse(localStorage.getItem('proOrders'));
+            orders = orders.filter(o => o.id !== id);
+            localStorage.setItem('proOrders', JSON.stringify(orders));
+            render();
         }
     }
 
-    function copyViberText(id) {
-        const o = orders.find(x => x.id === id);
-        const text = getViberText(o);
-        copyToClipboard(text, true);
-    }
-
-    function copyToClipboard(text, showNotification = true) {
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(text).then(() => {
-                if (showNotification) showToast('Копирано в клипборда!', 'success');
-            });
-        } else {
-            // Fallback за стари браузъри
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-9999px";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                if (showNotification) showToast('Копирано в клипборда!', 'success');
-            } catch (err) {
-                if (showNotification) showToast('Грешка при копиране', 'error');
-            }
-            document.body.removeChild(textArea);
-        }
-    }
-
-    function copyTrackingNumber(num) {
-        copyToClipboard(num, true);
-    }
-
-    function sendEmail(id) {
-        const o = orders.find(x => x.id === id);
-        const url = getTrackUrl(o);
-        const body = `Здравейте, ${o.name}!\n\nПратката Ви от Автозона 33 пътува с ${o.courier.toUpperCase()}.\nНомер: ${o.num}\nПроследяване: ${url}`;
-        window.location.href = `mailto:?subject=Пратка от Автозона 33&body=${encodeURIComponent(body)}`;
-    }
-
-    function changeStatus(id) {
-        const o = orders.find(x => x.id === id);
-        const next = { 'travel': 'done', 'done': 'issue', 'issue': 'travel' };
-        o.status = next[o.status];
-        save(); 
-        render();
-        showToast('Статусът е обновен!', 'success');
-    }
-
-    function exportToCSV() {
-        let csv = "Дата,Клиент,Телефон,Куриер,Номер,Статус\n";
-        orders.forEach(o => {
-            const statusText = { 'travel': 'Пътува', 'done': 'Доставена', 'issue': 'Проблем' }[o.status];
-            csv += `${o.date},${o.name},${o.phone},${o.courier},${o.num},${statusText}\n`;
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Номерът е копиран: " + text);
         });
-        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `Avtozona33_Report_${new Date().toISOString().split('T')[0]}.csv`;
-        link.click();
-        showToast('Файлът е изтеглен!', 'success');
     }
 
-    function deleteOrder(id) { 
-        if(confirm("Сигурни ли сте, че искате да изтриете тази поръчка?")) { 
-            orders = orders.filter(o => o.id !== id); 
-            save(); 
-            render(); 
-            showToast('Поръчката е изтрита!', 'success');
-        } 
-    }
-    
-    function save() { 
-        localStorage.setItem('autozonaOrders', JSON.stringify(orders)); 
-    }
-
-    function updateStats() {
-        document.getElementById('totalCount').textContent = orders.length;
-        document.getElementById('travelCount').textContent = orders.filter(o => o.status === 'travel').length;
-        document.getElementById('doneCount').textContent = orders.filter(o => o.status === 'done').length;
-        document.getElementById('issueCount').textContent = orders.filter(o => o.status === 'issue').length;
-    }
-
-    function render() {
+    function render(filter = "") {
         const list = document.getElementById('list');
-        const search = document.getElementById('search').value.toLowerCase();
+        const orders = JSON.parse(localStorage.getItem('proOrders') || '[]');
         const filtered = orders.filter(o => 
-            o.name.toLowerCase().includes(search) || 
-            o.num.toLowerCase().includes(search) ||
-            (o.phone && o.phone.includes(search))
+            o.name.toLowerCase().includes(filter.toLowerCase()) || 
+            o.num.includes(filter)
         );
         
-        updateStats();
-        
-        if (filtered.length === 0) {
-            list.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-icon">📦</div>
-                    <div>Няма намерени пратки</div>
-                    <div style="font-size: 14px; margin-top: 10px; opacity: 0.7;">Добавете нова пратка или променете критериите за търсене</div>
-                </div>`;
-            return;
-        }
-        
-        list.innerHTML = "";
+        document.getElementById('statsDisplay').innerText = `Общо пратки: ${orders.length}`;
+        list.innerHTML = filtered.length ? "" : "<p style='text-align:center; color:#999;'>Няма намерени записи.</p>";
+
         filtered.forEach(o => {
-            const statusConfig = {
-                travel: { label: '🚚 Пътува', class: 'btn-status-travel' },
-                done: { label: '✅ Доставена', class: 'btn-status-done' },
-                issue: { label: '⚠️ Проблем', class: 'btn-status-issue' }
-            };
-            const statusInfo = statusConfig[o.status];
-            
             const card = document.createElement('div');
-            card.className = `order-card status-${o.status}`;
+            card.className = 'order-card';
+            const trackUrl = getTrackUrl(o.courier, o.num);
+            
             card.innerHTML = `
                 <div class="order-info">
-                    <strong>${escapeHtml(o.name)}</strong>
-                    <span>📞 ${o.phone || '---'} | 📅 ${o.date}</span>
-                    <span class="copy-badge" onclick="copyTrackingNumber('${o.num}')">${o.courier.toUpperCase()}: ${o.num} 📋</span>
+                    <strong>${o.name}</strong>
+                    <small>${o.date} | <span style="text-transform:uppercase; font-weight:bold">${o.courier}</span></small>
+                    <span class="copy-badge" onclick="copyToClipboard('${o.num}')" title="Кликни за копиране">${o.num} 📋</span>
                 </div>
                 <div class="actions">
-                    <button class="btn-action ${statusInfo.class}" onclick="changeStatus(${o.id})">${statusInfo.label}</button>
-                    <button class="btn-action" style="background:var(--viber)" onclick="sendViber(${o.id})">💜 Viber</button>
-                    <button class="btn-action btn-copy-text" onclick="copyViberText(${o.id})" title="Копирай Viber текст">📋 Текст</button>
-                    <button class="btn-action" style="background:var(--email)" onclick="sendEmail(${o.id})">✉️ Email</button>
-                    <button class="btn-action" style="background:var(--dark)" onclick="deleteOrder(${o.id})" title="Изтрий">🗑️</button>
-                </div>`;
+                    <button class="btn-action btn-track" onclick="window.open('${trackUrl}', '_blank')">🌐 Виж</button>
+                    <button class="btn-action btn-viber" onclick="sendViber('${o.name}', '${o.num}', '${o.courier}')">💜 Viber</button>
+                    <button class="btn-action btn-email" onclick="sendEmail('${o.name}', '${o.num}', '${o.courier}')">✉️ Email</button>
+                    <button class="btn-action btn-delete" onclick="deleteOrder(${o.id})">🗑️</button>
+                </div>
+            `;
             list.appendChild(card);
         });
     }
-    
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
 
-    // Инициализация
-    render();
-    
-    // Enter key за добавяне
-    document.querySelectorAll('.admin-panel input').forEach(input => {
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addOrder();
-        });
-    });
+    function filterOrders() {
+        render(document.getElementById('search').value);
+    }
 </script>
+
 </body>
 </html>
