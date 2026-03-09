@@ -3,135 +3,943 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Касов Отчет Онлайн - Google Drive Sync</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Касов Отчет Онлайн - EUR</title>
     <style>
-        /* Основни стилове за интерфейса */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: #f5f5f5; padding-bottom: 70px; }
-        .card { background: white; margin: 10px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        button { cursor: pointer; border: none; border-radius: 5px; padding: 10px 15px; font-weight: bold; width: 100%; margin-top: 10px; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-warning { background: #f39c12; color: white; }
-        .btn-danger { background: #e74c3c; color: white; }
-        .gdrive-status { display: none; padding: 10px; border-radius: 5px; margin-top: 10px; text-align: center; font-weight: bold; }
-        .success { background: #d4edda; color: #155724; display: block; }
-        .error { background: #f8d7da; color: #721c24; display: block; }
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #2c3e50; display: flex; justify-content: space-around; padding: 10px 0; }
-        .nav-item { color: white; text-decoration: none; font-size: 12px; text-align: center; }
-        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f5f5f5; padding-bottom: 60px; min-height: 100vh; }
+        
+        /* LOGIN SCREEN */
+        #loginScreen { 
+            position: fixed; inset: 0; background: linear-gradient(135deg, #2c3e50, #3498db); 
+            display: flex; align-items: center; justify-content: center; z-index: 9999;
+        }
+        .login-box { 
+            background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .login-box h2 { text-align: center; margin-bottom: 20px; color: #2c3e50; }
+        .location-select { 
+            width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #3498db; 
+            border-radius: 8px; font-size: 16px;
+        }
+        .password-input { 
+            width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #3498db; 
+            border-radius: 8px; font-size: 16px; text-align: center;
+        }
+        
+        .header { background: #2c3e50; color: white; padding: 15px; text-align: center; font-size: 18px; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .location-badge { 
+            background: #e74c3c; color: white; padding: 5px 15px; border-radius: 20px; 
+            font-size: 14px; display: inline-block; margin-top: 5px;
+        }
+        .tabs { display: flex; background: #34495e; position: sticky; top: 50px; z-index: 99; }
+        .tab { flex: 1; padding: 12px; text-align: center; color: white; cursor: pointer; border-bottom: 3px solid transparent; font-size: 14px; transition: all 0.3s; }
+        .tab.active { background: #2c3e50; border-bottom-color: #3498db; }
+        .content { padding: 15px; display: none; }
+        .content.active { display: block; }
+        .card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 12px; position: relative; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px; color: #2c3e50; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; background: #f9f9f9; }
+        .row { display: flex; gap: 10px; }
+        .row .form-group { flex: 1; }
+        button { background: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: 600; width: 100%; margin-top: 10px; transition: background 0.3s; }
+        button:hover { background: #2980b9; }
+        .btn-danger { background: #e74c3c; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-success { background: #27ae60; }
+        .btn-success:hover { background: #229954; }
+        .btn-warning { background: #f39c12; }
+        .btn-warning:hover { background: #e67e22; }
+        .summary-card { background: #ecf0f1; padding: 15px; border-radius: 5px; margin-bottom: 15px; }
+        .summary-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #bdc3c7; }
+        .summary-item:last-child { border-bottom: none; }
+        .summary-total { font-weight: bold; font-size: 18px; color: #2c3e50; background: #d5dbdb; padding: 10px; border-radius: 5px; margin-top: 5px; }
+        .transaction-list { max-height: 400px; overflow-y: auto; }
+        .transaction-item { background: white; padding: 10px; margin-bottom: 8px; border-radius: 5px; border-left: 4px solid #3498db; font-size: 14px; }
+        .transaction-item.cod { border-left-color: #9b59b6; }
+        .transaction-item .date { font-weight: bold; color: #7f8c8d; }
+        .transaction-item .amount { font-weight: bold; font-size: 16px; color: #2c3e50; }
+        .transaction-item .courier-info { 
+            background: #f8f9fa; padding: 5px 8px; border-radius: 4px; 
+            font-size: 12px; margin-top: 5px; color: #6c757d;
+        }
+        .delete-btn { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; float: right; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
+        .nav-btn { color: white; text-decoration: none; padding: 5px 15px; border-radius: 5px; font-size: 14px; }
+        .nav-btn:hover { background: #34495e; }
+        .section-title { background: #3498db; color: white; padding: 8px 15px; border-radius: 5px; margin: 15px 0 10px 0; font-weight: bold; }
+        .section-title.cod { background: #9b59b6; }
+        
+        /* AUTOCOMPLETE STYLES */
+        .autocomplete-container { position: relative; }
+        .autocomplete-list {
+            position: absolute; top: 100%; left: 0; right: 0; background: white;
+            border: 2px solid #3498db; border-top: none; border-radius: 0 0 5px 5px;
+            max-height: 250px; overflow-y: auto; z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .autocomplete-item {
+            padding: 10px; cursor: pointer; border-bottom: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .autocomplete-item:hover { background: #e3f2fd; }
+        .autocomplete-item .stock-badge {
+            background: #27ae60; color: white; padding: 2px 8px;
+            border-radius: 12px; font-size: 12px; font-weight: bold;
+        }
+        .autocomplete-item .stock-badge.zero {
+            background: #e74c3c;
+        }
+        .autocomplete-item .code {
+            font-size: 11px; color: #7f8c8d; margin-top: 2px;
+        }
+        
+        /* SELECTED PRODUCT INFO */
+        .selected-product {
+            background: #d4edda; border: 2px solid #28a745; border-radius: 8px;
+            padding: 15px; margin-bottom: 15px; display: none;
+        }
+        .selected-product.show { display: block; }
+        .selected-product h4 { color: #155724; margin-bottom: 10px; }
+        .selected-product .stock-info {
+            display: flex; justify-content: space-between; font-size: 18px;
+        }
+        .selected-product .current-stock {
+            font-weight: bold; color: #28a745; font-size: 24px;
+        }
+        .selected-product .current-stock.zero {
+            color: #dc3545;
+        }
+        
+        .external-stock { 
+            background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; 
+            padding: 15px; margin-bottom: 15px;
+        }
+        .external-stock h4 { color: #856404; margin-bottom: 10px; }
+        .sync-btn { 
+            background: #ffc107; color: #212529; border: none; padding: 8px 15px; 
+            border-radius: 5px; cursor: pointer; font-size: 14px; margin-bottom: 10px;
+        }
+        
+        /* Payment type selector */
+        .payment-type-selector {
+            display: flex; gap: 10px; margin-bottom: 15px;
+        }
+        .payment-type-btn {
+            flex: 1; padding: 10px; border: 2px solid #ddd; background: white;
+            border-radius: 8px; cursor: pointer; text-align: center;
+            transition: all 0.3s;
+        }
+        .payment-type-btn.active {
+            border-color: #3498db; background: #ebf5fb;
+        }
+        .payment-type-btn.cod.active {
+            border-color: #9b59b6; background: #f5eef8;
+        }
+        
+        /* COD Fields */
+        .cod-fields {
+            display: none;
+            background: #f5eef8; border: 2px solid #9b59b6; border-radius: 8px;
+            padding: 15px; margin-bottom: 15px;
+        }
+        .cod-fields.show { display: block; }
+        
+        /* Google Drive status */
+        .gdrive-status {
+            position: fixed; top: 60px; right: 10px;
+            padding: 8px 12px; border-radius: 20px; font-size: 12px;
+            z-index: 1000; display: none;
+        }
+        .gdrive-status.success { background: #27ae60; color: white; display: block; }
+        .gdrive-status.error { background: #e74c3c; color: white; display: block; }
+        .gdrive-status.syncing { background: #f39c12; color: white; display: block; }
+        
+        @media (max-width: 600px) { .row { flex-direction: column; } }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h3><i class="fab fa-google-drive"></i> Синхронизация</h3>
-        <p style="font-size: 13px; color: #666;">Данните се изпращат към Вашия Google Drive.</p>
-        
-        <div id="gdriveStatus" class="gdrive-status"></div>
+<!-- Google Drive Status -->
+<div id="gdriveStatus" class="gdrive-status"></div>
 
-        <button onclick="exportToGoogleDrive()" class="btn-success">
-            <i class="fas fa-cloud-upload-alt"></i> ЗАПИШИ В GOOGLE DRIVE
-        </button>
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+    <div class="login-box">
+        <h2>🔐 Касов Отчет Онлайн</h2>
+        <select class="location-select" id="loginLocation">
+            <option value="">-- Изберете обект --</option>
+            <option value="Склад">📦 Склад</option>
+            <option value="Магазин 305">🏪 Магазин 305</option>
+            <option value="Магазин 309">🏪 Магазин 309</option>
+        </select>
+        <input type="password" class="password-input" id="loginPass" placeholder="Въведете парола">
+        <button onclick="doLogin()">Вход</button>
+        <p style="text-align: center; margin-top: 15px; font-size: 12px; color: #7f8c8d;">
+            Пароли: Склад=sklad, 305=m305, 309=m309
+        </p>
+    </div>
+</div>
 
-        <button onclick="exportDataLocal()" class="btn-warning">
-            <i class="fas fa-file-download"></i> Локален експорт (JSON)
-        </button>
+<!-- MAIN APP (hidden until login) -->
+<div id="mainApp" style="display: none;">
+    <div class="header">
+        💰 Касов Отчет Онлайн
+        <div class="location-badge" id="currentLocation">-</div>
+    </div>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('sales')">Продажби</div>
+        <div class="tab" onclick="showTab('service')">Служебни</div>
+        <div class="tab" onclick="showTab('summary')">Обобщение</div>
     </div>
 
-    <div class="card" id="settings-section">
-        <h4><i class="fas fa-cog"></i> Настройки на връзката</h4>
-        <label>Google Apps Script URL:</label>
-        <input type="text" id="sheetUrl" placeholder="https://script.google.com/macros/s/...">
-        <button onclick="saveSettings()" style="background: #3498db; color: white;">Запази настройките</button>
-    </div>
+    <!-- Продажби -->
+    <div id="sales" class="content active">
+        <!-- Наличност от външен източник -->
+        <div class="external-stock">
+            <h4>📦 Наличност от системата</h4>
+            <button class="sync-btn" onclick="syncExternalStock()">🔄 Синхронизирай наличности</button>
+            <div id="externalStockDisplay">Няма свързани данни. Натиснете синхронизиране.</div>
+        </div>
 
-    <script>
-        // Глобални променливи (взети от твоя оригинален код)
-        const STORAGE_KEY = 'avtozona33_v3';
-        let CURRENT_LOCATION = localStorage.getItem('selectedLocation') || 'Неизвестен обект';
-
-        // Зареждане на настройките при старт
-        window.onload = function() {
-            const savedUrl = localStorage.getItem(STORAGE_KEY + '_sheetUrl') || '';
-            document.getElementById('sheetUrl').value = savedUrl;
-        };
-
-        function saveSettings() {
-            const url = document.getElementById('sheetUrl').value;
-            localStorage.setItem(STORAGE_KEY + '_sheetUrl', url);
-            alert('✅ Настройките са запазени!');
-        }
-
-        // ОСНОВНА ФУНКЦИЯ ЗА СИНХРОНИЗАЦИЯ
-        async function exportToGoogleDrive() {
-            const scriptURL = document.getElementById('sheetUrl').value;
-            const statusEl = document.getElementById('gdriveStatus');
-
-            if (!scriptURL || !scriptURL.startsWith('https://script.google.com')) {
-                alert('❌ Моля, въведете валиден Google Script URL в настройките!');
-                return;
-            }
-
-            // Събиране на данните от локалното хранилище
-            const dataToSync = {
-                action: 'saveToDrive',
-                filename: `Otchet_${CURRENT_LOCATION}_${new Date().toISOString().split('T')[0]}.json`,
-                data: {
-                    обект: CURRENT_LOCATION,
-                    касиер: document.getElementById('cashierName')?.value || 'N/A',
-                    продажби: JSON.parse(localStorage.getItem(STORAGE_KEY + '_sales') || '[]'),
-                    служебни: JSON.parse(localStorage.getItem(STORAGE_KEY + '_services') || '[]'),
-                    дата_експорт: new Date().toLocaleString('bg-BG')
-                }
-            };
-
-            if (dataToSync.data.продажби.length === 0 && dataToSync.data.служебни.length === 0) {
-                alert('Няма данни за изпращане!');
-                return;
-            }
-
-            statusEl.className = 'gdrive-status';
-            statusEl.style.display = 'block';
-            statusEl.textContent = '⏳ Изпращане...';
-
-            try {
-                // Използваме fetch с no-cors за съвместимост с Google Scripts
-                await fetch(scriptURL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    cache: 'no-cache',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dataToSync)
-                });
-
-                // При no-cors не можем да проверим response.ok, затова приемаме успех при липса на catch грешка
-                statusEl.className = 'gdrive-status success';
-                statusEl.textContent = '✅ Успешно записано в Google Drive!';
-                alert('Данните са изпратени към облака!');
+        <div class="card">
+            <h3>🛒 Нова продажба (EUR)</h3>
+            <form id="salesForm">
+                <div class="form-group">
+                    <label>Дата</label>
+                    <input type="date" id="saleDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Док. №</label>
+                    <input type="text" id="saleDoc" placeholder="Въведи номер">
+                </div>
                 
-            } catch (error) {
-                console.error('Грешка:', error);
-                statusEl.className = 'gdrive-status error';
-                statusEl.textContent = '❌ Грешка при връзката!';
-                alert('Възникна грешка. Проверете интернет връзката.');
+                <!-- AUTOCOMPLETE ARTIKUL -->
+                <div class="form-group autocomplete-container">
+                    <label>Артикул (търси от наличностите)</label>
+                    <input type="text" id="saleDesc" placeholder="Започнете да пишете за търсене..." autocomplete="off">
+                    <div id="autocompleteList" class="autocomplete-list" style="display: none;"></div>
+                </div>
+                
+                <!-- ИНФО ЗА ИЗБРАНИЯ АРТИКУЛ -->
+                <div id="selectedProductInfo" class="selected-product">
+                    <h4>📋 Избран артикул</h4>
+                    <div style="margin-bottom: 10px;"><strong id="spName">-</strong></div>
+                    <div class="stock-info">
+                        <span>Наличност в <span id="spLocation">-</span>:</span>
+                        <span class="current-stock" id="spStock">0</span>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                        Код: <span id="spCode">-</span> | Цена: <span id="spPrice">-</span> EUR
+                    </div>
+                </div>
+                
+                <!-- ТИП ПЛАЩАНЕ -->
+                <div class="section-title">💳 Тип плащане</div>
+                <div class="payment-type-selector">
+                    <div class="payment-type-btn active" onclick="setPaymentType('cash')" id="btnCash">
+                        💵 Брой<br><small>в каса</small>
+                    </div>
+                    <div class="payment-type-btn" onclick="setPaymentType('card')" id="btnCard">
+                        💳 Карта<br><small>в каса</small>
+                    </div>
+                    <div class="payment-type-btn cod" onclick="setPaymentType('cod')" id="btnCod">
+                        📦 Нал. платеж<br><small>НЕ в каса</small>
+                    </div>
+                </div>
+                
+                <!-- ОБИКНОВЕНИ ПЛАЩАНИЯ -->
+                <div id="regularPaymentFields">
+                    <div class="form-group">
+                        <label>Сума (EUR)</label>
+                        <input type="number" id="saleAmount" step="0.01" placeholder="0.00">
+                    </div>
+                </div>
+                
+                <!-- НАЛОЖЕН ПЛАТЕЖ ПОЛЕТА -->
+                <div id="codFields" class="cod-fields">
+                    <div class="section-title class="cod">📦 Детайли за наложен платеж</div>
+                    <div class="form-group">
+                        <label>Куриер *</label>
+                        <select id="codCourier" required>
+                            <option value="">-- Изберете куриер --</option>
+                            <option value="Econt">Еконт</option>
+                            <option value="Speedy">Спиди</option>
+                            <option value="Sameday">Sameday</option>
+                            <option value="BOX NOW">BOX NOW</option>
+                            <option value="DHL">DHL</option>
+                            <option value="UPS">UPS</option>
+                            <option value="FedEx">FedEx</option>
+                            <option value="Other">Друг</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Номер на товарителница *</label>
+                        <input type="text" id="codTracking" placeholder="Въведете номер на товарителница" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Сума за събиране (EUR) *</label>
+                        <input type="number" id="codAmount" step="0.01" placeholder="0.00" required>
+                    </div>
+                    <div style="background: #fff3cd; padding: 10px; border-radius: 5px; font-size: 12px; color: #856404;">
+                        ⚠️ Внимание: При наложен платеж парите НЕ влизат в касата, а се събират от куриера!
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-success">➕ Добави продажба</button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h3>📋 Списък продажби</h3>
+            <div id="salesList" class="transaction-list"></div>
+        </div>
+    </div>
+
+    <!-- Служебни -->
+    <div id="service" class="content">
+        <div class="card">
+            <h3>📝 Служебна операция (EUR)</h3>
+            <form id="serviceForm">
+                <div class="form-group">
+                    <label>Дата</label>
+                    <input type="date" id="serviceDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Основание</label>
+                    <select id="serviceReason">
+                        <option value="Въведени">Въведени пари</option>
+                        <option value="Изведени">Изведени пари</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Сума (EUR)</label>
+                    <input type="number" id="serviceAmountEUR" step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Забележка</label>
+                    <input type="text" id="serviceNote" placeholder="Причина">
+                </div>
+                <button type="submit" class="btn-success">➕ Добави операция</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>📋 Служебни операции</h3>
+            <div id="serviceList" class="transaction-list"></div>
+        </div>
+    </div>
+
+    <!-- Обобщение -->
+    <div id="summary" class="content">
+        <div class="card">
+            <h3>⚙️ Настройки</h3>
+            <div class="form-group">
+                <label>Google Apps Script URL (за Google Drive):</label>
+                <input type="text" id="sheetUrl" placeholder="https://script.google.com/macros/s/YOUR_ID/exec">
+                <small style="color: #666;">Този URL се използва за запис в Google Drive</small>
+            </div>
+            <div class="form-group">
+                <label>Касиер</label>
+                <input type="text" id="cashierName" placeholder="Име на касиер">
+            </div>
+            <div class="form-group">
+                <label>Начална каса (EUR)</label>
+                <input type="number" id="initialEUR" step="0.01" placeholder="0.00">
+            </div>
+            <button onclick="saveSettings()" class="btn-success">💾 Запази настройки</button>
+            <button onclick="logout()" class="btn-danger" style="margin-top: 10px;">🚪 Изход</button>
+        </div>
+
+        <div class="card">
+            <h3>📊 Дневно обобщение (EUR)</h3>
+            
+            <div class="section-title">💵 САЛДО БРОЙ (КЕШ)</div>
+            <div class="summary-card">
+                <div class="summary-item">
+                    <span>Начална каса (EUR):</span>
+                    <span id="sumInitialEUR">0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span>Продажби в брой (EUR):</span>
+                    <span id="sumCashSalesEUR">0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span>Служебно салдо (EUR):</span>
+                    <span id="sumServiceEUR">0.00</span>
+                </div>
+                <div class="summary-total">
+                    <span>КРАЙНА КАСА БРОЙ (EUR):</span>
+                    <span id="sumFinalCashEUR">0.00</span>
+                </div>
+            </div>
+
+            <div class="section-title">💳 САЛДО КАРТА</div>
+            <div class="summary-card">
+                <div class="summary-item">
+                    <span>Продажби с карта (EUR):</span>
+                    <span id="sumCardSalesEUR">0.00</span>
+                </div>
+                <div class="summary-total">
+                    <span>ОБЩО ПО КАРТА (EUR):</span>
+                    <span id="sumFinalCardEUR">0.00</span>
+                </div>
+            </div>
+
+            <div class="section-title cod">📦 НАЛОЖЕН ПЛАТЕЖ (НЕ в каса)</div>
+            <div class="summary-card">
+                <div class="summary-item">
+                    <span>Брой пратки:</span>
+                    <span id="sumCodCount">0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Обща сума за събиране (EUR):</span>
+                    <span id="sumCodAmount">0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>☁️ Експорт към Google Drive</h3>
+            <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                Записва данните директно в Google Drive като JSON файл. 
+                Изисква настроен Google Apps Script.
+            </p>
+            <button onclick="exportToGoogleDrive()" class="btn-success">
+                <i class="fab fa-google-drive"></i> 📤 Запиши в Google Drive
+            </button>
+            <button onclick="exportData()" class="btn-warning" style="margin-top: 10px;">
+                💾 Локален експорт (JSON)
+            </button>
+            <button onclick="clearAllData()" class="btn-danger" style="margin-top: 10px;">
+                🗑️ Изтрий всички данни
+            </button>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="#" class="nav-btn" onclick="location.reload()">🔄 Обнови</a>
+        <a href="#" class="nav-btn" onclick="saveSettings()">💾 Запази</a>
+    </div>
+</div>
+
+<script>
+    // ПАРОЛИ ЗА ОБЕКТИТЕ
+    const LOCATION_PASSWORDS = {
+        'Склад': 'sklad',
+        'Магазин 305': 'm305',
+        'Магазин 309': 'm309'
+    };
+    
+    let STORAGE_KEY = 'kasov_otchet_';
+    let CURRENT_LOCATION = '';
+    let CURRENT_STOCK_KEY = '';
+    let INVENTORY_DATA = [];
+    let currentPaymentType = 'cash'; // cash, card, cod
+    
+    const DEFAULT_SHEET_URL = "https://script.google.com/macros/s/YOUR_ID_HERE/exec";
+    let SHEET_URL = localStorage.getItem('sheetUrl') || DEFAULT_SHEET_URL;
+    
+    let selectedProduct = null;
+    
+    window.onload = function() {
+        const savedLocation = sessionStorage.getItem('currentLocation');
+        if (savedLocation && LOCATION_PASSWORDS[savedLocation]) {
+            doAutoLogin(savedLocation);
+        }
+    };
+    
+    function doLogin() {
+        const location = document.getElementById('loginLocation').value;
+        const pass = document.getElementById('loginPass').value;
+        
+        if (!location) {
+            alert('Моля изберете обект!');
+            return;
+        }
+        
+        if (LOCATION_PASSWORDS[location] === pass) {
+            CURRENT_LOCATION = location;
+            STORAGE_KEY = 'kasov_otchet_' + location.replace(/\s+/g, '_');
+            
+            const stockMap = { 'Склад': 'w', 'Магазин 305': 'm1', 'Магазин 309': 'm2' };
+            CURRENT_STOCK_KEY = stockMap[location];
+            
+            sessionStorage.setItem('currentLocation', location);
+            
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('currentLocation').textContent = location;
+            
+            initApp();
+        } else {
+            alert('❌ Грешна парола!');
+            document.getElementById('loginPass').value = '';
+        }
+    }
+    
+    function doAutoLogin(location) {
+        CURRENT_LOCATION = location;
+        STORAGE_KEY = 'kasov_otchet_' + location.replace(/\s+/g, '_');
+        
+        const stockMap = { 'Склад': 'w', 'Магазин 305': 'm1', 'Магазин 309': 'm2' };
+        CURRENT_STOCK_KEY = stockMap[location];
+        
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        document.getElementById('currentLocation').textContent = location;
+        
+        initApp();
+    }
+    
+    function logout() {
+        sessionStorage.removeItem('currentLocation');
+        location.reload();
+    }
+    
+    function initApp() {
+        document.getElementById('saleDate').valueAsDate = new Date();
+        document.getElementById('serviceDate').valueAsDate = new Date();
+        loadSettings();
+        loadInventoryData();
+        loadData();
+        setupAutocomplete();
+    }
+
+    function loadInventoryData() {
+        const nalichnostData = localStorage.getItem('ave_pro_inv_v11_2');
+        if (nalichnostData) {
+            try {
+                INVENTORY_DATA = JSON.parse(nalichnostData);
+            } catch (e) {
+                INVENTORY_DATA = [];
             }
         }
+    }
 
-        // Локално сваляне на файл (стария метод)
-        function exportDataLocal() {
-            const data = {
-                обект: CURRENT_LOCATION,
-                продажби: JSON.parse(localStorage.getItem(STORAGE_KEY + '_sales') || '[]'),
-                дата: new Date().toISOString()
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `otchet_${CURRENT_LOCATION}.json`;
-            a.click();
+    // PAYMENT TYPE SELECTOR
+    function setPaymentType(type) {
+        currentPaymentType = type;
+        
+        // Update buttons
+        document.querySelectorAll('.payment-type-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('btn' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+        
+        // Show/hide fields
+        if (type === 'cod') {
+            document.getElementById('regularPaymentFields').style.display = 'none';
+            document.getElementById('codFields').classList.add('show');
+        } else {
+            document.getElementById('regularPaymentFields').style.display = 'block';
+            document.getElementById('codFields').classList.remove('show');
         }
-    </script>
+    }
+
+    function setupAutocomplete() {
+        const input = document.getElementById('saleDesc');
+        const list = document.getElementById('autocompleteList');
+        
+        input.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            
+            if (query.length < 2) {
+                list.style.display = 'none';
+                return;
+            }
+            
+            const matches = INVENTORY_DATA.filter(item => {
+                const inCurrentLocation = item[CURRENT_STOCK_KEY] > 0;
+                const nameMatch = item.name.toLowerCase().includes(query);
+                const codeMatch = item.code.toLowerCase().includes(query);
+                return inCurrentLocation && (nameMatch || codeMatch);
+            }).slice(0, 10);
+            
+            if (matches.length === 0) {
+                list.innerHTML = '<div class="autocomplete-item" style="color: #999;">Няма намерени артикули</div>';
+                list.style.display = 'block';
+                return;
+            }
+            
+            list.innerHTML = matches.map(item => {
+                const stock = item[CURRENT_STOCK_KEY] || 0;
+                const stockClass = stock > 0 ? '' : 'zero';
+                return `
+                    <div class="autocomplete-item" onclick="selectProduct('${item.code}')">
+                        <div>
+                            <div>${item.name}</div>
+                            <div class="code">${item.code} | ${item.subGroup} > ${item.brand}</div>
+                        </div>
+                        <span class="stock-badge ${stockClass}">${stock} бр.</span>
+                    </div>
+                `;
+            }).join('');
+            
+            list.style.display = 'block';
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.autocomplete-container')) {
+                list.style.display = 'none';
+            }
+        });
+    }
+
+    function selectProduct(code) {
+        const product = INVENTORY_DATA.find(p => p.code === code);
+        if (!product) return;
+        
+        selectedProduct = product;
+        
+        document.getElementById('saleDesc').value = product.name;
+        document.getElementById('autocompleteList').style.display = 'none';
+        
+        const stock = product[CURRENT_STOCK_KEY] || 0;
+        document.getElementById('spName').textContent = product.name;
+        document.getElementById('spLocation').textContent = CURRENT_LOCATION;
+        document.getElementById('spStock').textContent = stock + ' бр.';
+        document.getElementById('spStock').className = stock > 0 ? 'current-stock' : 'current-stock zero';
+        document.getElementById('spCode').textContent = product.code;
+        document.getElementById('spPrice').textContent = product.ps ? product.ps.toFixed(2) : '-';
+        
+        document.getElementById('selectedProductInfo').classList.add('show');
+    }
+
+    function syncExternalStock() {
+        loadInventoryData();
+        
+        if (INVENTORY_DATA.length === 0) {
+            document.getElementById('externalStockDisplay').innerHTML = 
+                '<p style="color: #856404;">⚠️ Няма налични данни от Nalichnost V12.</p>';
+            return;
+        }
+        
+        const ourStock = INVENTORY_DATA.filter(item => item[CURRENT_STOCK_KEY] > 0);
+        
+        let html = `<p><strong>📍 ${CURRENT_LOCATION}</strong> - ${ourStock.length} арикула:</p>`;
+        html += '<div style="max-height: 200px; overflow-y: auto;">';
+        
+        ourStock.slice(0, 10).forEach(item => {
+            html += `
+                <div style="border-bottom: 1px solid #dee2e6; padding: 5px 0;">
+                    <span style="font-size: 12px;"><strong>${item.code}</strong> - ${item.name.substring(0, 30)}...</span>
+                    <span style="font-weight: bold; color: #28a745;">${item[CURRENT_STOCK_KEY]} бр.</span>
+                </div>
+            `;
+        });
+        
+        if (ourStock.length > 10) {
+            html += `<p style="text-align: center; color: #6c757d; font-size: 12px;">... и още ${ourStock.length - 10}</p>`;
+        }
+        
+        html += '</div>';
+        document.getElementById('externalStockDisplay').innerHTML = html;
+    }
+
+    function saveSettings() {
+        SHEET_URL = document.getElementById('sheetUrl').value || DEFAULT_SHEET_URL;
+        localStorage.setItem('sheetUrl', SHEET_URL);
+        localStorage.setItem(STORAGE_KEY + '_cashier', document.getElementById('cashierName').value);
+        localStorage.setItem(STORAGE_KEY + '_initialEUR', document.getElementById('initialEUR').value);
+        alert('✅ Настройките са запазени!');
+        updateSummary();
+    }
+    
+    function loadSettings() {
+        const savedUrl = localStorage.getItem('sheetUrl');
+        if (savedUrl) {
+            document.getElementById('sheetUrl').value = savedUrl;
+            SHEET_URL = savedUrl;
+        }
+        document.getElementById('cashierName').value = localStorage.getItem(STORAGE_KEY + '_cashier') || '';
+        document.getElementById('initialEUR').value = localStorage.getItem(STORAGE_KEY + '_initialEUR') || '';
+    }
+
+    function showTab(tabName) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById(tabName).classList.add('active');
+    }
+
+    // Продажби
+    document.getElementById('salesForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const desc = document.getElementById('saleDesc').value;
+        if (!desc.trim()) {
+            alert('Моля въведете артикул!');
+            return;
+        }
+        
+        let sale = {
+            type: "sale",
+            date: document.getElementById('saleDate').value,
+            doc: document.getElementById('saleDoc').value,
+            desc: desc,
+            productCode: selectedProduct ? selectedProduct.code : null,
+            location: CURRENT_LOCATION,
+            paymentType: currentPaymentType,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Според типа плащане
+        if (currentPaymentType === 'cod') {
+            // Наложен платеж
+            sale.courier = document.getElementById('codCourier').value;
+            sale.trackingNumber = document.getElementById('codTracking').value;
+            sale.codAmount = parseFloat(document.getElementById('codAmount').value) || 0;
+            sale.cashEUR = 0;
+            sale.cardEUR = 0;
+            
+            if (!sale.courier || !sale.trackingNumber || sale.codAmount === 0) {
+                alert('Моля попълнете всички полета за наложен платеж!');
+                return;
+            }
+        } else {
+            // Нормално плащане
+            const amount = parseFloat(document.getElementById('saleAmount').value) || 0;
+            if (amount === 0) {
+                alert('Моля въведете сума!');
+                return;
+            }
+            
+            if (currentPaymentType === 'cash') {
+                sale.cashEUR = amount;
+                sale.cardEUR = 0;
+            } else {
+                sale.cashEUR = 0;
+                sale.cardEUR = amount;
+            }
+            sale.codAmount = 0;
+        }
+        
+        saveData('sales', sale);
+        
+        // Нулираме формата
+        this.reset();
+        document.getElementById('saleDate').valueAsDate = new Date();
+        document.getElementById('selectedProductInfo').classList.remove('show');
+        selectedProduct = null;
+        setPaymentType('cash'); // Връщаме към брой по подразбиране
+        
+        loadData();
+    });
+
+    // Служебни
+    document.getElementById('serviceForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const service = {
+            type: "service",
+            date: document.getElementById('serviceDate').value,
+            reason: document.getElementById('serviceReason').value,
+            amountEUR: parseFloat(document.getElementById('serviceAmountEUR').value) || 0,
+            note: document.getElementById('serviceNote').value,
+            timestamp: new Date().toISOString()
+        };
+        
+        if (service.amountEUR === 0) {
+            alert('Моля въведете сума!');
+            return;
+        }
+        
+        saveData('services', service);
+        this.reset();
+        document.getElementById('serviceDate').valueAsDate = new Date();
+        loadData();
+    });
+
+    function saveData(type, data) {
+        const key = STORAGE_KEY + '_' + type;
+        const existing = JSON.parse(localStorage.getItem(key) || '[]');
+        existing.push(data);
+        localStorage.setItem(key, JSON.stringify(existing));
+    }
+
+    function loadData() {
+        const sales = JSON.parse(localStorage.getItem(STORAGE_KEY + '_sales') || '[]');
+        const salesList = document.getElementById('salesList');
+        salesList.innerHTML = sales.slice().reverse().map(s => {
+            let paymentBadge = '';
+            let extraInfo = '';
+            
+            if (s.paymentType === 'cod') {
+                paymentBadge = '<span style="background: #9b59b6; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">НАЛ.ПЛАТЕЖ</span>';
+                extraInfo = `<div class="courier-info">📦 ${s.courier} | Товарителница: ${s.trackingNumber} | ${s.codAmount.toFixed(2)} EUR</div>`;
+            } else if (s.paymentType === 'card') {
+                paymentBadge = '<span style="background: #3498db; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">КАРТА</span>';
+            } else {
+                paymentBadge = '<span style="background: #27ae60; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">БРОЙ</span>';
+            }
+            
+            return `
+            <div class="transaction-item ${s.paymentType === 'cod' ? 'cod' : ''}">
+                <div class="date">${s.date} | Док.${s.doc || '-'} ${paymentBadge}</div>
+                <div><strong>${s.desc || 'Без описание'}</strong></div>
+                ${s.productCode ? `<div style="font-size: 11px; color: #666;">Код: ${s.productCode}</div>` : ''}
+                ${s.paymentType !== 'cod' ? `<div class="amount">${(s.cashEUR + s.cardEUR).toFixed(2)} EUR</div>` : ''}
+                ${extraInfo}
+                <button class="delete-btn" onclick="deleteItem('sales', '${s.timestamp}')">Изтрий</button>
+            </div>
+        `}).join('');
+        
+        const services = JSON.parse(localStorage.getItem(STORAGE_KEY + '_services') || '[]');
+        const serviceList = document.getElementById('serviceList');
+        serviceList.innerHTML = services.slice().reverse().map(s => `
+            <div class="transaction-item" style="border-left-color: ${s.reason === 'Въведени' ? '#27ae60' : '#e74c3c'}">
+                <div class="date">${s.date} | ${s.reason}</div>
+                <div class="amount">${s.amountEUR.toFixed(2)} EUR</div>
+                <div><em>${s.note || ''}</em></div>
+                <button class="delete-btn" onclick="deleteItem('services', '${s.timestamp}')">Изтрий</button>
+            </div>
+        `).join('');
+        
+        updateSummary();
+    }
+
+    function deleteItem(type, timestamp) {
+        if (!confirm('Сигурни ли сте?')) return;
+        const key = STORAGE_KEY + '_' + type;
+        let items = JSON.parse(localStorage.getItem(key) || '[]');
+        items = items.filter(i => i.timestamp !== timestamp);
+        localStorage.setItem(key, JSON.stringify(items));
+        loadData();
+    }
+
+    function updateSummary() {
+        const sales = JSON.parse(localStorage.getItem(STORAGE_KEY + '_sales') || '[]');
+        const services = JSON.parse(localStorage.getItem(STORAGE_KEY + '_services') || '[]');
+        
+        // Разделяме продажбите
+        const cashSales = sales.filter(s => s.paymentType === 'cash');
+        const cardSales = sales.filter(s => s.paymentType === 'card');
+        const codSales = sales.filter(s => s.paymentType === 'cod');
+        
+        const totalCashSalesEUR = cashSales.reduce((sum, s) => sum + (s.cashEUR || 0), 0);
+        const totalCardSalesEUR = cardSales.reduce((sum, s) => sum + (s.cardEUR || 0), 0);
+        const totalCodAmount = codSales.reduce((sum, s) => sum + (s.codAmount || 0), 0);
+        
+        const totalServiceInEUR = services.filter(s => s.reason === 'Въведени').reduce((sum, s) => sum + (s.amountEUR || 0), 0);
+        const totalServiceOutEUR = services.filter(s => s.reason === 'Изведени').reduce((sum, s) => sum + (s.amountEUR || 0), 0);
+        const totalServiceEUR = totalServiceInEUR - totalServiceOutEUR;
+        
+        const initialEUR = parseFloat(document.getElementById('initialEUR').value) || 0;
+        
+        // Обновяваме дисплея
+        document.getElementById('sumInitialEUR').textContent = initialEUR.toFixed(2);
+        document.getElementById('sumCashSalesEUR').textContent = totalCashSalesEUR.toFixed(2);
+        document.getElementById('sumServiceEUR').textContent = totalServiceEUR.toFixed(2);
+        const finalCashEUR = initialEUR + totalCashSalesEUR + totalServiceEUR;
+        document.getElementById('sumFinalCashEUR').textContent = finalCashEUR.toFixed(2);
+        
+        document.getElementById('sumCardSalesEUR').textContent = totalCardSalesEUR.toFixed(2);
+        document.getElementById('sumFinalCardEUR').textContent = totalCardSalesEUR.toFixed(2);
+        
+        // COD статистика
+        document.getElementById('sumCodCount').textContent = codSales.length;
+        document.getElementById('sumCodAmount').textContent = totalCodAmount.toFixed(2);
+    }
+
+    // ЕКСПОРТ КЪМ GOOGLE DRIVE
+    async function exportToGoogleDrive() {
+        const statusEl = document.getElementById('gdriveStatus');
+        
+        if (!SHEET_URL || SHEET_URL === DEFAULT_SHEET_URL) {
+            alert('Моля въведете Google Apps Script URL в настройките!');
+            return;
+        }
+        
+        const data = {
+            обект: CURRENT_LOCATION,
+            касиер: document.getElementById('cashierName').value,
+            дата_генериране: new Date().toISOString(),
+            продажби: JSON.parse(localStorage.getItem(STORAGE_KEY + '_sales') || '[]'),
+            служебни: JSON.parse(localStorage.getItem(STORAGE_KEY + '_services') || '[]'),
+            обобщение: {
+                начална_каса: parseFloat(document.getElementById('initialEUR').value) || 0,
+                кеш_продажби: 0,
+                карта_продажби: 0,
+                наложен_платеж_брой: 0,
+                наложен_платеж_сума: 0,
+                служебни_операции: 0
+            }
+        };
+        
+        // Изчисляваме обобщение
+        const sales = data.продажби;
+        data.обобщение.кеш_продажби = sales.filter(s => s.paymentType === 'cash').reduce((a, s) => a + (s.cashEUR || 0), 0);
+        data.обобщение.карта_продажби = sales.filter(s => s.paymentType === 'card').reduce((a, s) => a + (s.cardEUR || 0), 0);
+        data.обобщение.наложен_платеж_брой = sales.filter(s => s.paymentType === 'cod').length;
+        data.обобщение.наложен_платеж_сума = sales.filter(s => s.paymentType === 'cod').reduce((a, s) => a + (s.codAmount || 0), 0);
+        
+        const services = data.служебни;
+        const serviceIn = services.filter(s => s.reason === 'Въведени').reduce((a, s) => a + (s.amountEUR || 0), 0);
+        const serviceOut = services.filter(s => s.reason === 'Изведени').reduce((a, s) => a + (s.amountEUR || 0), 0);
+        data.обобщение.служебни_операции = serviceIn - serviceOut;
+        
+        statusEl.className = 'gdrive-status syncing';
+        statusEl.textContent = '⏳ Записвам в Google Drive...';
+        
+        try {
+            const response = await fetch(SHEET_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'saveToDrive',
+                    filename: `kasov_otchet_${CURRENT_LOCATION.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`,
+                    data: data
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                statusEl.className = 'gdrive-status success';
+                statusEl.textContent = '✅ Записано в Google Drive!';
+                setTimeout(() => statusEl.style.display = 'none', 3000);
+            } else {
+                throw new Error(result.error || 'Unknown error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            statusEl.className = 'gdrive-status error';
+            statusEl.textContent = '❌ Грешка при записа!';
+            alert('Грешка при запис в Google Drive: ' + error.message);
+        }
+    }
+
+    function exportData() {
+        const data = {
+            обект: CURRENT_LOCATION,
+            касиер: document.getElementById('cashierName').value,
+            продажби: JSON.parse(localStorage.getItem(STORAGE_KEY + '_sales') || '[]'),
+            служебни: JSON.parse(localStorage.getItem(STORAGE_KEY + '_services') || '[]'),
+            настройки: {
+                initialEUR: document.getElementById('initialEUR').value
+            },
+            дата_експорт: new Date().toISOString()
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `kasov_otchet_${CURRENT_LOCATION.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+    }
+
+    function clearAllData() {
+        if (confirm('⚠️ СИГУРНИ ЛИ СТЕ? Това ще изтрие ВСИЧКИ данни за ' + CURRENT_LOCATION + '!')) {
+            localStorage.removeItem(STORAGE_KEY + '_sales');
+            localStorage.removeItem(STORAGE_KEY + '_services');
+            localStorage.removeItem(STORAGE_KEY + '_cashier');
+            localStorage.removeItem(STORAGE_KEY + '_initialEUR');
+            location.reload();
+        }
+    }
+</script>
+
 </body>
 </html>
