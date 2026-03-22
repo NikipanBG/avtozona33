@@ -8,8 +8,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>AutoFleet Manager Pro</title>
 
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQXV0b0ZsZWV0IE1hbmFnZXIiLCJzaG9ydF9uYW1lIjoiQXV0b0ZsZWV0Iiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMxYTIzN2UiLCJ0aGVtZV9jb2xvciI6IiMxYTIzN2UiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJzMlM0UlM0N0ZXh0IHk9Jy45ZW0nIGZvbnQtc2l6ZT0nOTAnJTNFRvCfjozigIclM0MvdGV4dCUzRSUzQy9zdmclM0UiLCJzaXplcyI6IjE5MngxOTIifV19">
+    <!-- Google API -->
+    <script src="https://apis.google.com/js/api.js"></script>
 
     <style>
         :root {
@@ -257,6 +257,7 @@
         .action-icon.cyan { background: #e0f7fa; color: #00bcd4; }
         .action-icon.orange { background: #fff3e0; color: var(--warning); }
         .action-icon.red { background: #ffebee; color: var(--error); }
+        .action-icon.green { background: #e8f5e9; color: var(--success); }
 
         .bottom-nav {
             position: fixed;
@@ -445,6 +446,12 @@
 
         .btn-danger:hover { background: #c62828; }
 
+        .btn-google {
+            background: #4285f4;
+            margin-top: 12px;
+        }
+        .btn-google:hover { background: #357ae8; }
+
         .hint {
             font-size: 12px;
             color: var(--text-secondary);
@@ -499,13 +506,6 @@
             margin-right: 12px;
         }
 
-        .service-history {
-            font-size: 11px;
-            color: var(--info);
-            margin-top: 4px;
-        }
-
-        /* Fuel History Styles */
         .fuel-history-list {
             max-height: 300px;
             overflow-y: auto;
@@ -530,7 +530,6 @@
         .fuel-entry-details { font-size: 12px; color: var(--text-secondary); }
         .fuel-entry-price { font-weight: 700; color: var(--success); font-size: 16px; }
 
-        /* Search */
         .search-box {
             width: 100%;
             padding: 12px 16px;
@@ -542,37 +541,6 @@
 
         .search-box:focus { outline: none; border-color: var(--primary); }
 
-        /* Delete Confirmation */
-        .delete-confirm {
-            background: #ffebee;
-            border: 2px solid var(--error);
-            border-radius: 12px;
-            padding: 16px;
-            margin: 16px 0;
-            text-align: center;
-        }
-
-        .delete-confirm-text { color: var(--error); font-weight: 600; margin-bottom: 12px; }
-
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        /* Vehicle Edit Button */
-        .edit-vehicle-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-left: 8px;
-        }
-
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -591,28 +559,15 @@
         .stat-card-value { font-size: 24px; font-weight: 700; color: var(--primary); }
         .stat-card-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
 
-        /* Icon Picker */
-        .icon-picker {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .icon-option {
-            font-size: 24px;
-            padding: 8px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            cursor: pointer;
+        .google-status {
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            margin-top: 12px;
+            font-size: 12px;
             text-align: center;
-            transition: all 0.2s;
         }
 
-        .icon-option:hover { border-color: var(--primary); transform: scale(1.1); }
-        .icon-option.selected { border-color: var(--primary); background: #e8eaf6; }
-
-        /* Theme Toggle */
         .theme-toggle {
             position: fixed;
             top: 16px;
@@ -628,7 +583,6 @@
             font-size: 20px;
         }
     </style>
-<base target="_blank">
 </head>
 <body>
 
@@ -692,6 +646,14 @@
         <div class="stat-card">
             <div class="stat-card-value" id="stat-total-fuel">0</div>
             <div class="stat-card-label">Общо зареждания</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-value" id="stat-avg-consumption">0.0</div>
+            <div class="stat-card-label">Среден разход</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-value" id="stat-total-cost">0</div>
+            <div class="stat-card-label">Общо разходи (EUR)</div>
         </div>
     </div>
 
@@ -779,19 +741,13 @@
         </div>
         <div class="form-group">
             <label class="form-label">Иконка</label>
-            <div class="icon-picker" id="icon-picker">
-                <div class="icon-option selected" onclick="selectIcon(this, '🚙')">🚙</div>
-                <div class="icon-option" onclick="selectIcon(this, '🚗')">🚗</div>
-                <div class="icon-option" onclick="selectIcon(this, '🚕')">🚕</div>
-                <div class="icon-option" onclick="selectIcon(this, '🚓')">🚓</div>
-                <div class="icon-option" onclick="selectIcon(this, '🚑')">🚑</div>
-                <div class="icon-option" onclick="selectIcon(this, '🚒')">🚒</div>
-                <div class="icon-option" onclick="selectIcon(this, '🚌')">🚌</div>
-                <div class="icon-option" onclick="selectIcon(this, '🚎')">🚎</div>
-                <div class="icon-option" onclick="selectIcon(this, '🚐')">🚐</div>
-                <div class="icon-option" onclick="selectIcon(this, '🛻')">🛻</div>
-                <div class="icon-option" onclick="selectIcon(this, '🚚')">🚚</div>
-                <div class="icon-option" onclick="selectIcon(this, '🚛')">🚛</div>
+            <div class="icon-picker" id="icon-picker" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;">
+                <div class="icon-option selected" onclick="selectIcon(this, '🚙')" style="font-size: 24px; padding: 8px; border: 2px solid #e0e0e0; border-radius: 8px; text-align: center;">🚙</div>
+                <div class="icon-option" onclick="selectIcon(this, '🚗')" style="font-size: 24px; padding: 8px; border: 2px solid #e0e0e0; border-radius: 8px; text-align: center;">🚗</div>
+                <div class="icon-option" onclick="selectIcon(this, '🚕')" style="font-size: 24px; padding: 8px; border: 2px solid #e0e0e0; border-radius: 8px; text-align: center;">🚕</div>
+                <div class="icon-option" onclick="selectIcon(this, '🚓')" style="font-size: 24px; padding: 8px; border: 2px solid #e0e0e0; border-radius: 8px; text-align: center;">🚓</div>
+                <div class="icon-option" onclick="selectIcon(this, '🚑')" style="font-size: 24px; padding: 8px; border: 2px solid #e0e0e0; border-radius: 8px; text-align: center;">🚑</div>
+                <div class="icon-option" onclick="selectIcon(this, '🚒')" style="font-size: 24px; padding: 8px; border: 2px solid #e0e0e0; border-radius: 8px; text-align: center;">🚒</div>
             </div>
             <input type="hidden" id="veh-icon" value="🚙">
         </div>
@@ -828,17 +784,14 @@
             <div class="modal-title">🛢️ Смяна на масло</div>
             <button class="close-btn" onclick="closeModal('oil-modal')">✕</button>
         </div>
-
         <div class="form-group">
             <label class="form-label">Дата на смяна</label>
             <input type="date" class="form-input" id="oil-date">
         </div>
-
         <div class="form-group">
             <label class="form-label">Километраж при смяната</label>
             <input type="number" class="form-input" id="oil-km" placeholder="напр. 200000">
         </div>
-
         <div class="form-row">
             <div class="form-group">
                 <label class="form-label">След (км)</label>
@@ -849,17 +802,14 @@
                 <input type="number" class="form-input" id="oil-interval-months" value="12">
             </div>
         </div>
-
         <div class="form-group">
             <label class="form-label">Тип масло</label>
             <input type="text" class="form-input" id="oil-type" placeholder="напр. Castrol 5W-40">
         </div>
-
         <div class="form-group">
             <label class="form-label">Цена (EUR.)</label>
             <input type="number" class="form-input" id="oil-price" placeholder="0.00" step="0.01">
         </div>
-
         <button class="btn-primary" onclick="saveOilChange()">Запази смяната</button>
         <button class="btn-secondary hidden" id="btn-delete-oil" onclick="confirmDeleteOilChange()">Изтрий записа</button>
     </div>
@@ -910,11 +860,7 @@
             <div class="modal-title">📊 История на зарежданията</div>
             <button class="close-btn" onclick="closeModal('fuel-history-modal')">✕</button>
         </div>
-        <div id="fuel-history-content">
-            <div style="text-align: center; padding: 40px; color: #999;">
-                Няма записани зареждания
-            </div>
-        </div>
+        <div id="fuel-history-content"></div>
     </div>
 </div>
 
@@ -924,6 +870,17 @@
         <div class="modal-header">
             <div class="modal-title">☁️ Синхронизация</div>
             <button class="close-btn" onclick="closeModal('sync-modal')">✕</button>
+        </div>
+
+        <!-- Google Drive Sync -->
+        <div style="background: #e8f0fe; border: 2px solid #4285f4; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px;">
+            <h3 style="margin-bottom: 12px; color: #4285f4;">☁️ Google Drive</h3>
+            <button class="btn-primary btn-google" onclick="googleDriveSync()" id="google-sync-btn">
+                🔄 Синхронизирай с Google Drive
+            </button>
+            <div id="google-status" class="google-status">
+                Не сте влезли в Google Drive
+            </div>
         </div>
 
         <div style="background: #e8f5e9; border: 2px dashed var(--success); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px;">
@@ -936,10 +893,6 @@
             <h3 style="margin-bottom: 12px; color: var(--warning);">📥 Постави данни</h3>
             <textarea class="form-input" id="import-text" placeholder="Поставете кода тук..." style="font-size: 11px; height: 100px; margin-bottom: 10px;"></textarea>
             <button class="btn-primary" onclick="importFromText()">Зареди данните</button>
-        </div>
-
-        <div style="margin-top: 20px; padding: 12px; background: #e3f2fd; border-radius: 8px; font-size: 12px; color: var(--text-secondary);">
-            <strong>Съвет:</strong> Използвайте бутона "Файл" за по-сигурно архивиране на данните.
         </div>
     </div>
 </div>
@@ -971,7 +924,7 @@
         </div>
         <div class="delete-confirm">
             <div class="delete-confirm-text" id="delete-confirm-text">Сигурни ли сте?</div>
-            <div class="btn-group">
+            <div class="btn-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <button class="btn-secondary" onclick="closeModal('delete-confirm-modal')">Отказ</button>
                 <button class="btn-danger" onclick="executeDelete()">Изтрий</button>
             </div>
@@ -984,7 +937,7 @@
 <script>
 
 // ============================================
-// AUTOFLFET PRO - Enhanced Version
+// AUTOFLET PRO - Google Drive Integration & Fuel Consumption
 // ============================================
 
 // Hide splash after load
@@ -1021,7 +974,7 @@ function installApp() {
 let appData = { 
     vehicles: [], 
     currentVehicleId: null,
-    version: '2.0',
+    version: '2.1',
     lastSync: null
 };
 
@@ -1035,10 +988,11 @@ function loadData() {
             const parsed = JSON.parse(saved);
             // Migration from old format
             if (!parsed.version) {
-                parsed.version = '2.0';
+                parsed.version = '2.1';
                 parsed.vehicles.forEach(v => {
                     if (!v.icon) v.icon = '🚙';
                     if (!v.oilHistory) v.oilHistory = [];
+                    if (!v.fuelHistory) v.fuelHistory = [];
                 });
             }
             appData = parsed;
@@ -1054,9 +1008,41 @@ function saveData() {
     try {
         localStorage.setItem('autoFleetData', JSON.stringify(appData));
         updateUI();
+        updateGoogleDriveStatus();
     } catch(e) {
         showNotification('Грешка при запазване', 'error');
     }
+}
+
+// ============================================
+// Average Fuel Consumption Calculation (corrected)
+// ============================================
+function calculateAverageConsumption(vehicle) {
+    if (!vehicle.fuelHistory || vehicle.fuelHistory.length < 2) return 0;
+    
+    // Sort by km ascending
+    const sorted = [...vehicle.fuelHistory].sort((a, b) => a.km - b.km);
+    
+    let totalConsumption = 0;
+    let validTrips = 0;
+    
+    for (let i = 1; i < sorted.length; i++) {
+        const kmDiff = sorted[i].km - sorted[i-1].km;
+        const liters = sorted[i].liters;
+        
+        if (kmDiff > 0 && liters > 0 && kmDiff < 3000) {
+            const tripConsumption = (liters / kmDiff) * 100;
+            totalConsumption += tripConsumption;
+            validTrips++;
+        }
+    }
+    
+    return validTrips > 0 ? totalConsumption / validTrips : 0;
+}
+
+function calculateTotalFuelCost(vehicle) {
+    if (!vehicle.fuelHistory) return 0;
+    return vehicle.fuelHistory.reduce((sum, f) => sum + (f.price || 0), 0);
 }
 
 // ============================================
@@ -1079,8 +1065,9 @@ function updateUI() {
     document.getElementById('stat-km').textContent = v.km.toLocaleString();
     document.getElementById('vehicle-emoji-container').querySelector('div').textContent = v.icon || '🚙';
 
-    const cons = calculateConsumption(v);
-    document.getElementById('stat-consumption').textContent = cons ? cons.toFixed(1) : '0.0';
+    const avgConsumption = calculateAverageConsumption(v);
+    document.getElementById('stat-consumption').textContent = avgConsumption ? avgConsumption.toFixed(1) : '0.0';
+    document.getElementById('stat-avg-consumption').textContent = avgConsumption ? avgConsumption.toFixed(1) : '0.0';
 
     updateDocumentsList(v);
     updateStats(v);
@@ -1090,10 +1077,10 @@ function updateStats(v) {
     if (!v || !v.fuelHistory) {
         document.getElementById('stat-last-month').textContent = '0';
         document.getElementById('stat-total-fuel').textContent = '0';
+        document.getElementById('stat-total-cost').textContent = '0';
         return;
     }
 
-    // Calculate last month expenses
     const lastMonth = new Date();
     lastMonth.setMonth(lastMonth.getMonth() - 1);
     const monthExpenses = v.fuelHistory
@@ -1102,6 +1089,7 @@ function updateStats(v) {
 
     document.getElementById('stat-last-month').textContent = monthExpenses.toFixed(0);
     document.getElementById('stat-total-fuel').textContent = v.fuelHistory.length;
+    document.getElementById('stat-total-cost').textContent = calculateTotalFuelCost(v).toFixed(0);
 }
 
 function updateDocumentsList(v) {
@@ -1149,11 +1137,11 @@ function updateDocumentsList(v) {
                 }
 
                 subtitle = `${oil.type || 'Масло'} | ${formatDate(oil.date)}`;
-                extraInfo = `<div class="service-history">Следваща: ${Math.max(0, kmLeft).toLocaleString()} км / ${Math.max(0, daysLeft)} дни</div>`;
+                extraInfo = `<div style="font-size: 11px; color: var(--info);">Следваща: ${Math.max(0, kmLeft).toLocaleString()} км / ${Math.max(0, daysLeft)} дни</div>`;
             }
 
             html += `
-                <button class="document-item" onclick="openOilModal()" aria-label="Смяна на масло">
+                <button class="document-item" onclick="openOilModal()">
                     <div class="document-icon ${statusClass}">${type.icon}</div>
                     <div class="document-info">
                         <div class="document-title">${type.title}</div>
@@ -1192,7 +1180,7 @@ function updateDocumentsList(v) {
             }
 
             html += `
-                <button class="document-item" onclick="openDocumentModal('${type.id}')" aria-label="${type.title}">
+                <button class="document-item" onclick="openDocumentModal('${type.id}')">
                     <div class="document-icon ${statusClass}">${type.icon}</div>
                     <div class="document-info">
                         <div class="document-title">${type.title}</div>
@@ -1210,34 +1198,6 @@ function updateDocumentsList(v) {
     document.getElementById('expired-count').textContent = expiredCount > 0 ? `${expiredCount} изтекли` : '';
 }
 
-// ============================================
-// Fixed Consumption Calculation
-// ============================================
-function calculateConsumption(v) {
-    if (!v.fuelHistory || v.fuelHistory.length < 2) return 0;
-
-    // Sort by km ascending (oldest first)
-    const sorted = [...v.fuelHistory].sort((a, b) => a.km - b.km);
-
-    let totalLiters = 0;
-    let totalKm = 0;
-    let validEntries = 0;
-
-    for (let i = 1; i < sorted.length; i++) {
-        const kmDiff = sorted[i].km - sorted[i-1].km;
-        const liters = sorted[i].liters;
-
-        // Validate data
-        if (kmDiff > 0 && liters > 0 && kmDiff < 5000) { // Max 5000km between fills
-            totalLiters += liters;
-            totalKm += kmDiff;
-            validEntries++;
-        }
-    }
-
-    return totalKm > 0 ? (totalLiters / totalKm * 100) : 0;
-}
-
 function getCurrentVehicle() {
     return appData.vehicles.find(v => v.id === appData.currentVehicleId);
 }
@@ -1245,10 +1205,6 @@ function getCurrentVehicle() {
 function formatDate(d) {
     if (!d) return '-';
     return new Date(d).toLocaleDateString('bg-BG');
-}
-
-function formatCurrency(amount) {
-    return amount.toFixed(2) + ' EUR';
 }
 
 // ============================================
@@ -1281,7 +1237,7 @@ function renderVehicleList() {
                     <div style="font-weight: 600;">${v.name}</div>
                     <div style="font-size: 12px; color: #666;">${v.km.toLocaleString()} км</div>
                 </div>
-                <button class="edit-vehicle-btn" onclick="event.stopPropagation(); editVehicle(${v.id})" title="Редактирай">✏️</button>
+                <button class="edit-vehicle-btn" onclick="event.stopPropagation(); editVehicle(${v.id})" style="background: rgba(0,0,0,0.1); border: none; border-radius: 8px; padding: 4px 8px;">✏️</button>
             </div>
         `).join('');
     }
@@ -1308,7 +1264,6 @@ function openAddVehicle() {
     document.getElementById('veh-icon').value = '🚙';
     document.getElementById('btn-delete-veh').classList.add('hidden');
 
-    // Reset icon picker
     document.querySelectorAll('.icon-option').forEach(el => el.classList.remove('selected'));
     document.querySelector('.icon-option').classList.add('selected');
 
@@ -1332,7 +1287,6 @@ function editVehicle(id) {
     document.getElementById('veh-icon').value = v.icon || '🚙';
     document.getElementById('btn-delete-veh').classList.remove('hidden');
 
-    // Update icon picker
     document.querySelectorAll('.icon-option').forEach(el => {
         el.classList.toggle('selected', el.textContent === (v.icon || '🚙'));
     });
@@ -1353,11 +1307,10 @@ function selectIcon(element, icon) {
 }
 
 function openIconPicker() {
-    // Може да се добави отделен picker, засега просто циклираме през икони
     const v = getCurrentVehicle();
     if (!v) return;
 
-    const icons = ['🚙', '🚗', '🚕', '🚓', '🚑', '🚒', '🚌', '🚎', '🚐', '🛻', '🚚', '🚛'];
+    const icons = ['🚙', '🚗', '🚕', '🚓', '🚑', '🚒'];
     const currentIdx = icons.indexOf(v.icon || '🚙');
     const nextIcon = icons[(currentIdx + 1) % icons.length];
 
@@ -1366,15 +1319,10 @@ function openIconPicker() {
     showNotification('Иконката е сменена', 'success');
 }
 
-// ============================================
-// Validation
-// ============================================
 function validatePlate() {
     const input = document.getElementById('veh-plate');
     const error = document.getElementById('plate-error');
     const plate = input.value.trim().toUpperCase();
-
-    // Bulgarian plate format: XX0000XX or X0000XX or XX0000X
     const plateRegex = /^[A-Z]{1,2}[0-9]{4}[A-Z]{1,2}$/;
 
     if (plate && !plateRegex.test(plate)) {
@@ -1412,7 +1360,6 @@ function saveVehicle() {
         return;
     }
 
-    // Check for duplicate plate
     const existingIdx = appData.vehicles.findIndex(v => v.plate === plate && v.id !== currentEditingVehicleId);
     if (existingIdx !== -1) {
         showNotification('Автомобил с този номер вече съществува!', 'error');
@@ -1420,7 +1367,6 @@ function saveVehicle() {
     }
 
     if (currentEditingVehicleId) {
-        // Edit existing
         const v = appData.vehicles.find(veh => veh.id === currentEditingVehicleId);
         if (v) {
             v.plate = plate;
@@ -1430,7 +1376,6 @@ function saveVehicle() {
             showNotification('Автомобилът е обновен!', 'success');
         }
     } else {
-        // Create new
         const newVeh = {
             id: Date.now(),
             plate, 
@@ -1450,8 +1395,6 @@ function saveVehicle() {
 
     saveData();
     closeModal('vehicle-modal');
-
-    // Reset form
     document.getElementById('veh-plate').value = '';
     document.getElementById('veh-name').value = '';
     document.getElementById('veh-km').value = '';
@@ -1521,7 +1464,6 @@ function saveOilChange() {
         price: parseFloat(document.getElementById('oil-price').value) || 0
     };
 
-    // Add to history
     if (!v.oilHistory) v.oilHistory = [];
     v.oilHistory.push({...v.oilChange, timestamp: Date.now()});
 
@@ -1647,7 +1589,6 @@ function saveFuel() {
     const price = parseFloat(document.getElementById('fuel-price').value);
     const km = parseInt(document.getElementById('fuel-km').value);
 
-    // Validation
     if (!date || !liters || liters <= 0 || !price || price <= 0 || !km || km <= 0) {
         showNotification('Моля, попълнете всички полета с валидни стойности!', 'error');
         return;
@@ -1669,13 +1610,12 @@ function saveFuel() {
 
     if (!v.fuelHistory) v.fuelHistory = [];
     v.fuelHistory.push(entry);
-    v.km = km; // Update vehicle km
+    v.km = km;
 
     saveData();
     closeModal('fuel-modal');
     showNotification(`Запазено! ${liters}л за ${price.toFixed(2)}EUR ✅`, 'success');
 
-    // Clear form
     document.getElementById('fuel-liters').value = '';
     document.getElementById('fuel-price').value = '';
 }
@@ -1697,7 +1637,6 @@ function openFuelHistory() {
             </div>
         `;
     } else {
-        // Sort by date descending (newest first)
         const sorted = [...v.fuelHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
 
         let totalLiters = 0;
@@ -1708,14 +1647,13 @@ function openFuelHistory() {
             totalPrice += f.price;
             const pricePerLiter = (f.price / f.liters).toFixed(2);
 
-            // Calculate consumption if previous entry exists
             let consumptionHtml = '';
             if (idx < sorted.length - 1) {
                 const prev = sorted[idx + 1];
                 const kmDiff = f.km - prev.km;
-                if (kmDiff > 0) {
+                if (kmDiff > 0 && kmDiff < 3000) {
                     const consumption = (f.liters / kmDiff * 100).toFixed(1);
-                    consumptionHtml = `<div style="font-size: 11px; color: var(--info);">${consumption} л/100км</div>`;
+                    consumptionHtml = `<div style="font-size: 11px; color: var(--info);">Разход: ${consumption} л/100км</div>`;
                 }
             }
 
@@ -1723,10 +1661,10 @@ function openFuelHistory() {
                 <div class="fuel-entry">
                     <div class="fuel-entry-info">
                         <div class="fuel-entry-date">${formatDate(f.date)} • ${f.km.toLocaleString()} км</div>
-                        <div class="fuel-entry-details">${f.liters}л × ${pricePerLiter}EUR/л • ${f.fuelType}</div>
+                        <div class="fuel-entry-details">${f.liters}л × ${pricePerLiter}€/л • ${f.fuelType}</div>
                         ${consumptionHtml}
                     </div>
-                    <div class="fuel-entry-price">${f.price.toFixed(2)}EUR</div>
+                    <div class="fuel-entry-price">${f.price.toFixed(2)}€</div>
                 </div>
             `;
         }).join('');
@@ -1743,7 +1681,7 @@ function openFuelHistory() {
                 </div>
                 <div style="display: flex; justify-content: space-between;">
                     <span>Общо разходи:</span>
-                    <strong style="color: var(--success);">${totalPrice.toFixed(2)}EUR</strong>
+                    <strong style="color: var(--success);">${totalPrice.toFixed(2)}€</strong>
                 </div>
             </div>
             <div class="fuel-history-list">
@@ -1756,10 +1694,139 @@ function openFuelHistory() {
 }
 
 // ============================================
+// Google Drive Sync
+// ============================================
+let googleClientId = 'YOUR_GOOGLE_CLIENT_ID'; // Трябва да се замени с реален Client ID
+let googleApiKey = 'YOUR_API_KEY'; // Трябва да се замени с реален API Key
+let googleTokenClient = null;
+let isGoogleSignedIn = false;
+
+function initGoogleAPI() {
+    gapi.load('client:auth2', () => {
+        gapi.client.init({
+            apiKey: googleApiKey,
+            clientId: googleClientId,
+            scope: 'https://www.googleapis.com/auth/drive.file',
+            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
+        }).then(() => {
+            const auth = gapi.auth2.getAuthInstance();
+            isGoogleSignedIn = auth.isSignedIn.get();
+            updateGoogleDriveStatus();
+            
+            auth.isSignedIn.listen(status => {
+                isGoogleSignedIn = status;
+                updateGoogleDriveStatus();
+            });
+        }).catch(error => {
+            console.error('Google API init error:', error);
+            updateGoogleDriveStatus('Грешка при инициализация');
+        });
+    });
+}
+
+function updateGoogleDriveStatus(message = null) {
+    const statusDiv = document.getElementById('google-status');
+    const syncBtn = document.getElementById('google-sync-btn');
+    
+    if (message) {
+        statusDiv.innerHTML = message;
+        return;
+    }
+    
+    if (isGoogleSignedIn) {
+        statusDiv.innerHTML = '✅ Свързан с Google Drive<br><small>Натиснете бутона за синхронизация</small>';
+        if (syncBtn) syncBtn.innerHTML = '🔄 Синхронизирай с Google Drive';
+    } else {
+        statusDiv.innerHTML = '❌ Не сте влезли в Google Drive<br><small>Ще се пренасочим за вход</small>';
+        if (syncBtn) syncBtn.innerHTML = '🔐 Вход в Google Drive';
+    }
+}
+
+function googleDriveSync() {
+    if (!isGoogleSignedIn) {
+        const auth = gapi.auth2.getAuthInstance();
+        auth.signIn().then(() => {
+            isGoogleSignedIn = true;
+            updateGoogleDriveStatus();
+            performGoogleSync();
+        }).catch(error => {
+            showNotification('Грешка при вход в Google', 'error');
+        });
+    } else {
+        performGoogleSync();
+    }
+}
+
+async function performGoogleSync() {
+    showNotification('Синхронизиране с Google Drive...', 'info');
+    
+    try {
+        const fileName = `autofleet_backup_${new Date().toISOString().split('T')[0]}.json`;
+        const fileContent = JSON.stringify(appData, null, 2);
+        
+        // First, search for existing backup files
+        const searchResponse = await gapi.client.drive.files.list({
+            q: "name contains 'autofleet_backup_'",
+            fields: 'files(id, name, modifiedTime)',
+            pageSize: 10
+        });
+        
+        const existingFiles = searchResponse.result.files;
+        
+        // If there are existing files, update the latest one, otherwise create new
+        if (existingFiles && existingFiles.length > 0) {
+            const latestFile = existingFiles.sort((a, b) => 
+                new Date(b.modifiedTime) - new Date(a.modifiedTime)
+            )[0];
+            
+            await gapi.client.drive.files.update({
+                fileId: latestFile.id,
+                media: {
+                    mimeType: 'application/json',
+                    body: fileContent
+                }
+            });
+            
+            showNotification('Синхронизацията завърши успешно!', 'success');
+        } else {
+            // Create new file
+            const boundary = '-------' + Date.now();
+            const metadata = {
+                name: fileName,
+                mimeType: 'application/json'
+            };
+            
+            await gapi.client.drive.files.create({
+                resource: metadata,
+                media: {
+                    mimeType: 'application/json',
+                    body: fileContent
+                }
+            });
+            
+            showNotification('Нов файл създаден в Google Drive!', 'success');
+        }
+        
+        appData.lastSync = new Date().toISOString();
+        saveData();
+        
+    } catch (error) {
+        console.error('Google Drive sync error:', error);
+        showNotification('Грешка при синхронизация: ' + (error.message || 'unknown'), 'error');
+    }
+}
+
+// Load Google API when ready
+window.addEventListener('load', () => {
+    if (typeof gapi !== 'undefined') {
+        initGoogleAPI();
+    }
+});
+
+// ============================================
 // Sync & Export
 // ============================================
 function openSyncModal() {
-    // Export with version header for compatibility
     const exportData = {
         ...appData,
         exportDate: new Date().toISOString(),
@@ -1774,7 +1841,6 @@ function openSyncModal() {
 }
 
 function generateChecksum(data) {
-    // Simple checksum for integrity verification
     const str = JSON.stringify(data.vehicles);
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -1806,19 +1872,16 @@ function importFromText() {
 
         let jsonStr;
 
-        // Check version
         if (text.startsWith('AFv2|')) {
             jsonStr = decodeURIComponent(escape(atob(text.slice(5))));
         } else if (text.startsWith('AFv1|')) {
             jsonStr = decodeURIComponent(escape(atob(text.slice(5))));
         } else {
-            // Legacy format
             jsonStr = decodeURIComponent(escape(atob(text)));
         }
 
         const data = JSON.parse(jsonStr);
 
-        // Validate data structure
         if (!data.vehicles || !Array.isArray(data.vehicles)) {
             throw new Error('Invalid data structure');
         }
@@ -1829,7 +1892,7 @@ function importFromText() {
             appData = {
                 vehicles: data.vehicles,
                 currentVehicleId: data.currentVehicleId,
-                version: data.version || '2.0',
+                version: data.version || '2.1',
                 lastSync: new Date().toISOString()
             };
 
@@ -1837,7 +1900,6 @@ function importFromText() {
             closeModal('sync-modal');
             showNotification(`Успешно заредени ${vehicleCount} коли! ✅`, 'success');
 
-            // Clear import field
             document.getElementById('import-text').value = '';
         }
     } catch(e) {
@@ -1854,7 +1916,7 @@ function downloadFile() {
     const exportData = {
         ...appData,
         exportDate: new Date().toISOString(),
-        appVersion: '2.0'
+        appVersion: '2.1'
     };
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
@@ -1886,7 +1948,7 @@ function uploadFile(input) {
                 appData = {
                     vehicles: data.vehicles,
                     currentVehicleId: data.currentVehicleId,
-                    version: data.version || '2.0',
+                    version: data.version || '2.1',
                     lastSync: new Date().toISOString()
                 };
 
@@ -1902,7 +1964,6 @@ function uploadFile(input) {
     reader.onerror = () => showNotification('Грешка при четене на файла', 'error');
     reader.readAsText(file);
 
-    // Reset input
     input.value = '';
 }
 
@@ -1930,14 +1991,10 @@ function executeDelete() {
     }
 }
 
-// Theme toggle (placeholder for future dark mode)
 function toggleTheme() {
     showNotification('Тъмна тема - в разработка 🌙');
 }
 
-// ============================================
-// Event Listeners
-// ============================================
 // Click outside to close
 document.querySelectorAll('.modal-overlay').forEach(m => {
     m.addEventListener('click', e => { 
@@ -1948,17 +2005,15 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-        // Close all modals
         document.querySelectorAll('.modal-overlay.active').forEach(m => {
             if (m.id !== 'delete-confirm-modal') closeModal(m.id);
         });
     }
 });
 
-// Handle visibility change (save data when app goes to background)
+// Save on visibility change
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-        // App going to background, ensure data is saved
         try {
             localStorage.setItem('autoFleetData', JSON.stringify(appData));
         } catch(e) {
@@ -1968,42 +2023,23 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ============================================
-// Service Worker Registration (PWA)
+// Service Worker Registration
 // ============================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        // Inline service worker for offline capability
         const swCode = `
             const CACHE_NAME = 'autofleet-v2';
-            const urlsToCache = [
-                '/',
-                '/autofleetV1.html'
-            ];
-
+            const urlsToCache = ['/', '/autofleetV1.html'];
             self.addEventListener('install', event => {
-                event.waitUntil(
-                    caches.open(CACHE_NAME)
-                        .then(cache => cache.addAll(urlsToCache))
-                );
+                event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)));
             });
-
             self.addEventListener('fetch', event => {
-                event.respondWith(
-                    caches.match(event.request)
-                        .then(response => {
-                            if (response) return response;
-                            return fetch(event.request);
-                        })
-                );
+                event.respondWith(caches.match(event.request).then(response => response || fetch(event.request)));
             });
         `;
-
         const blob = new Blob([swCode], {type: 'application/javascript'});
         const swUrl = URL.createObjectURL(blob);
-
-        navigator.serviceWorker.register(swUrl)
-            .then(registration => console.log('SW registered'))
-            .catch(error => console.log('SW registration failed'));
+        navigator.serviceWorker.register(swUrl).catch(error => console.log('SW registration failed'));
     });
 }
 
@@ -2012,7 +2048,6 @@ if ('serviceWorker' in navigator) {
 // ============================================
 loadData();
 
-// Check for expired documents on load and notify
 setTimeout(() => {
     const v = getCurrentVehicle();
     if (v) {
@@ -2023,20 +2058,18 @@ setTimeout(() => {
                 if (daysLeft < 0) expiredCount++;
             }
         });
-
         if (v.oilChange && v.oilChange.date) {
             const nextDate = new Date(v.oilChange.date);
             nextDate.setMonth(nextDate.getMonth() + (v.oilChange.intervalMonths || 12));
             if (nextDate < new Date()) expiredCount++;
         }
-
         if (expiredCount > 0) {
             showNotification(`⚠️ Имате ${expiredCount} изтекли документа!`, 'warning');
         }
     }
 }, 2000);
 
-console.log('🚗 AutoFleet Pro initialized');
+console.log('🚗 AutoFleet Pro v2.1 initialized with Google Drive sync and fuel consumption');
 </script>
 
 </body>
